@@ -37,8 +37,7 @@ class _TestAppState extends State<TestApp> {
               layers: [
                 TileLayerOptions(
                     urlTemplate:
-                    //'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c']),
                 DragMarkerPluginOptions(
                   markers: [
