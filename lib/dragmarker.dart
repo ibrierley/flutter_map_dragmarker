@@ -45,7 +45,7 @@ class DragMarkerPlugin implements MapPlugin {
     return options is DragMarkerPluginOptions;
   }
 
-  bool _boundsContainsMarker(MapState map, DragMarker marker) {
+  static bool _boundsContainsMarker(MapState map, DragMarker marker) {
     var pixelPoint = map.project(marker.point);
 
     final width  = marker.width  - marker.anchor.left;
@@ -154,7 +154,7 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     setState(() {}); // Needed if using a feedback widget
   }
 
-  CustomPoint _offsetToPoint(Offset offset) {
+  static CustomPoint _offsetToPoint(Offset offset) {
     return CustomPoint(offset.dx, offset.dy);
   }
 
