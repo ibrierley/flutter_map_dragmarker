@@ -54,6 +54,9 @@ class _TestAppState extends State<TestApp> {
                       onLongPress:  (point) { print("on long press"); },
                       feedbackBuilder: (ctx) => Container( child: Icon(Icons.edit_location, size: 75) ),
                       feedbackOffset: Offset(0.0, -18.0),
+                      updateMapNearEdge: true,
+                      nearEdgeRatio: 2.0,
+                      nearEdgeSpeed: 1.0,
                     ),
                     DragMarker(
                       point: LatLng(45.535, -122.675),
@@ -61,6 +64,7 @@ class _TestAppState extends State<TestApp> {
                       height: 80.0,
                       builder: (ctx) => Container( child: Icon(Icons.location_on, size: 50) ),
                       onDragEnd: (details,point) { print('Finished Drag $details $point'); },
+                      updateMapNearEdge: false,
                     )
                   ],
                 ),
