@@ -6,6 +6,13 @@ See the main.dart file for example use.
 May want future things adding like automoving the map when dragging close to the edge of the screen.
 
 Add the `DragMarkerPlugin(),` to the plugins list, and then reference `DragMarkerPluginOptions` in your flutter_map layers.
+
+Most options should be self-explanatory. Offsets are just there for tweaking icon/images if they aren't centered, it may need a further tweak in code if there are some oddities like changing the bounds.
+
+feedbackBuilder and feedbackOffset are for a replacement widget/effect when actually dragging.
+
+height is mainly for Images, use size for Icons, but be aware internal calculations are based on size.
+
 ```
 
 FlutterMap(
