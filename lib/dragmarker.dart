@@ -92,11 +92,13 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     updatePixelPos(widget.marker.point);
 
     return GestureDetector(
-      onPanStart: onPanStart,
+      onPanStart:  onPanStart,
       onPanUpdate: onPanUpdate,
-      onPanEnd: onPanEnd,
-      onTap: widget.marker.onTap,
-      onLongPress: widget.marker.onLongPress,
+      onPanEnd:    onPanEnd,
+      onTap:       () { if (widget.marker.onTap != null )
+        widget.marker.onTap(widget.marker.point); },
+      onLongPress: () { if (widget.marker.onLongPress != null)
+        widget.marker.onLongPress(widget.marker.point); },
 
       child: Stack(children: [
         Positioned(
@@ -129,7 +131,7 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     dragPosStart = _offsetToCrs(details.localPosition);
     myPointStart = LatLng( widget.marker.point.latitude, widget.marker.point.longitude);
 
-    if( widget.marker.onDragStart != null ) widget.marker.onDragStart(details);
+    if( widget.marker.onDragStart != null ) widget.marker.onDragStart(details,widget.marker.point);
   }
 
   void onPanUpdate(details) {
@@ -144,13 +146,13 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
       updatePixelPos(widget.marker.point);
     });
 
-    if( widget.marker.onDragUpdate != null ) widget.marker.onDragUpdate(details);
+    if( widget.marker.onDragUpdate != null ) widget.marker.onDragUpdate(details,widget.marker.point);
 
   }
 
   void onPanEnd(details) {
     isDragging = false;
-    if( widget.marker.onDragEnd != null ) widget.marker.onDragEnd(details);
+    if( widget.marker.onDragEnd != null ) widget.marker.onDragEnd(details,widget.marker.point);
     setState(() {}); // Needed if using a feedback widget
   }
 
@@ -184,11 +186,11 @@ class DragMarker {
   final Offset offset;
   final Offset feedbackOffset;
   final Anchor anchor;
-  final Function onDragStart;
-  final Function onDragUpdate;
-  final Function onDragEnd;
-  final Function onTap;
-  final Function onLongPress;
+  final Function(DragStartDetails,LatLng) onDragStart;
+  final Function(DragUpdateDetails,LatLng) onDragUpdate;
+  final Function(DragEndDetails,LatLng) onDragEnd;
+  final Function(LatLng) onTap;
+  final Function(LatLng) onLongPress;
 
   DragMarker({
     this.point,
