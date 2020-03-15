@@ -3,6 +3,8 @@ A drag marker for flutter_map
 
 See the main.dart file for example use, but the example below should show pretty much everything.
 
+Note: This layer should probably be the last layer IF it needs to be dragged (otherwise why would you use this :)), otherwise other layers may intercept the gestures.
+
 Add the `DragMarkerPlugin(),` to the plugins list, and then reference `DragMarkerPluginOptions` in your flutter_map layers.
 
 Most options should be self-explanatory. Offsets are just there for tweaking icon/images if they aren't centered, it may need a further tweak in code if there are some oddities like changing the bounds.
