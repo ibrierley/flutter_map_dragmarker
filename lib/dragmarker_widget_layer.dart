@@ -6,39 +6,37 @@ import 'package:flutter_map/plugin_api.dart';
 
 
 class DragMarkerPluginOptions extends LayerOptions {
-  List<DragMarker> markers;
-  DragMarkerPluginOptions({this.markers });
+  final List<DragMarker> markers;
+
+  DragMarkerPluginOptions({this.markers = const [], rebuild })
+    : super(rebuild: rebuild);
 }
 
 class DragMarkerPlugin implements MapPlugin {
-
   @override
   Widget createLayer(
       LayerOptions options, MapState mapState, Stream<Null> stream) {
-    if (options is DragMarkerPluginOptions) {
+    return StreamBuilder<int>(
+      stream: stream,
+      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+        if (options is DragMarkerPluginOptions) {
+          var dragMarkers = <Widget>[];
+          for (var marker in options.markers) {
+            if (!_boundsContainsMarker(mapState, marker)) continue;
 
-      return StreamBuilder<int>(
-          stream: stream,
-          builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-
-            var dragMarkers = <Widget>[];
-            for( var marker in options.markers ) {
-
-              if(!_boundsContainsMarker(mapState, marker)) continue;
-
-              dragMarkers.add(
-                  DragMarkerWidget(mapState: mapState, marker: marker, stream: stream, options: options)
-              );
-            }
-            return Container(
-              child: Stack(children: dragMarkers),
+            dragMarkers.add(
+              DragMarkerWidget(
+                  mapState: mapState, marker: marker, stream: stream),
             );
           }
-      );
-    }
+          return Container(
+            child: Stack(children: dragMarkers),
+          );
+        }
 
-    throw Exception('Unknown options type for MyCustom'
-        'plugin: $options');
+        throw Exception('Unknown options type for DragMarkerPlugin: $options');
+        },
+      );
   }
 
   @override
@@ -93,17 +91,17 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   @override
   Widget build(BuildContext context) {
 
-    DragMarker marker = widget.marker;
+    var marker = widget.marker;
     updatePixelPos(widget.marker.point);
 
     return GestureDetector(
       onPanStart:  onPanStart,
       onPanUpdate: onPanUpdate,
       onPanEnd:    onPanEnd,
-      onTap:       () { if (marker.onTap != null )
-        marker.onTap(marker.point); },
-      onLongPress: () { if (marker.onLongPress != null)
-        marker.onLongPress(marker.point); },
+      onTap:       () { if (marker.onTap != null ) {
+        marker.onTap(marker.point); } },
+      onLongPress: () { if (marker.onLongPress != null) {
+        marker.onLongPress(marker.point); } },
 
       child: Stack(children: [
         Positioned(
@@ -122,8 +120,8 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   void updatePixelPos(point) {
-    DragMarker marker = widget.marker;
-    MapState mapState = widget.mapState;
+    var marker = widget.marker;
+    var mapState = widget.mapState;
 
     var pos = mapState.project(point);
     pos = pos.multiplyBy(mapState.getZoomScale(mapState.zoom, mapState.zoom)) -
@@ -143,9 +141,9 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   void onPanUpdate(DragUpdateDetails details) {
-    bool isDragging = true;
-    DragMarker marker = widget.marker;
-    MapState mapState = widget.mapState;
+    var isDragging = true;
+    var marker = widget.marker;
+    var mapState = widget.mapState;
 
     var dragPos = _offsetToCrs(details.localPosition);
 
@@ -215,8 +213,8 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   /// If dragging near edge of the screen, adjust the map so we keep dragging
 
   void adjustMapToMarker(DragMarkerWidget widget, autoOffsetX, autoOffsetY) {
-    DragMarker marker = widget.marker;
-    MapState mapState = widget.mapState;
+    var marker = widget.marker;
+    var mapState = widget.mapState;
 
     var oldMapPos = mapState.project(mapState.center);
     var newMapLatLng = mapState.unproject(CustomPoint(oldMapPos.x + autoOffsetX, oldMapPos.y + autoOffsetY));
@@ -286,7 +284,7 @@ class DragMarker {
     this.onDragEnd,
     this.onTap,
     this.onLongPress,
-    this.updateMapNearEdge = false, // experimental
+    this.updateMapNearEdge = false,
     this.nearEdgeRatio = 1.5,
     this.nearEdgeSpeed = 1.0,
     AnchorPos anchorPos,
