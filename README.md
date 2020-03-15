@@ -11,7 +11,7 @@ feedbackBuilder and feedbackOffset are for a replacement widget/effect when actu
 
 height is mainly for Images, use size for Icons, but be aware internal calculations are based on size.
 
-Experimental automoving the map when near the edge is implemented, but if anyone wants to improve it, pull requests welcome!
+Experimental automoving the map when near the edge is implemented (optional), but if anyone wants to improve it, pull requests welcome!
 
 Also may be interesting to move the map alternately to marker, so the marker stays in place, but then technically you aren't
 dragging any more, so thoughts welcome.
@@ -48,8 +48,8 @@ FlutterMap(
               feedbackBuilder: (ctx) => Container( child: Icon(Icons.edit_location, size: 75) ),
               feedbackOffset: Offset(0.0, -18.0),
               updateMapNearEdge: true,	// Experimental, move the map when marker close to edge
-              nearEdgeRatio: 2.0,				// Experimental
-              nearEdgeSpeed: 1.0,				// Experimental
+              nearEdgeRatio: 2.0,	// Experimental
+              nearEdgeSpeed: 1.0,	// Experimental
             ),
             DragMarker(
               point: LatLng(45.535, -122.675),
