@@ -24,9 +24,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
-  flutter_map:
-    git:
-      url: https://github.com/johnpryan/flutter_map.git
+  flutter_map: any
+    #git:
+    #  url: https://github.com/johnpryan/flutter_map.git
   latlong: any
   #provider: ^4.0.4
 
