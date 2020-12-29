@@ -62,10 +62,10 @@ class DragMarkerPlugin implements MapPlugin {
 
 class DragMarkerWidget extends StatefulWidget {
 
-  DragMarkerWidget({this.mapState, this.marker, AnchorPos anchorPos, this.stream, this.options }) : anchor = Anchor.forPos(anchorPos, marker.width, marker.height);
+  DragMarkerWidget({this.mapState, this.marker, AnchorPos anchorPos, this.stream, this.options }); //: anchor = Anchor.forPos(anchorPos, marker.width, marker.height);
 
   final MapState mapState;
-  final Anchor anchor;
+  //final Anchor anchor;
   final DragMarker marker;
   final Stream<Null> stream;
   final LayerOptions options;
@@ -129,8 +129,8 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     pos = pos.multiplyBy(mapState.getZoomScale(mapState.zoom, mapState.zoom)) -
         mapState.getPixelOrigin();
 
-    pixelPosition = CustomPoint((pos.x - (marker.width - widget.anchor.left)).toDouble(),
-        (pos.y - (marker.height - widget.anchor.top)).toDouble());
+    pixelPosition = CustomPoint((pos.x - (marker.width - widget.marker.anchor.left)).toDouble(),
+        (pos.y - (marker.height - widget.marker.anchor.top)).toDouble());
   }
 
 
@@ -263,7 +263,6 @@ class DragMarker {
   final double height;
   final Offset offset;
   final Offset feedbackOffset;
-  final Anchor anchor;
   final Function(DragStartDetails,LatLng) onDragStart;
   final Function(DragUpdateDetails,LatLng) onDragUpdate;
   final Function(DragEndDetails,LatLng) onDragEnd;
@@ -272,6 +271,7 @@ class DragMarker {
   final bool updateMapNearEdge;
   final double nearEdgeRatio;
   final double nearEdgeSpeed;
+  Anchor anchor;
 
   DragMarker({
     this.point,
@@ -290,5 +290,7 @@ class DragMarker {
     this.nearEdgeRatio = 1.5,
     this.nearEdgeSpeed = 1.0,
     AnchorPos anchorPos,
-  }) : anchor = Anchor.forPos(anchorPos, width, height);
+  }) {
+    anchor = Anchor.forPos(anchorPos, width, height);
+  }
 }
