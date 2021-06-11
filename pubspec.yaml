@@ -27,7 +27,7 @@ dependencies:
   flutter_map: any
     #git:
     #  url: https://github.com/johnpryan/flutter_map.git
-  latlong: 0.8.0
+  latlong2: 0.8.0
   #provider: ^4.0.4
 
 dev_dependencies:
