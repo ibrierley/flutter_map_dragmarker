@@ -3,6 +3,8 @@ A drag marker for flutter_map
 
 See the main.dart file for example use, but the example below should show pretty much everything.
 
+If using flutter_map 0.14.0+ then you probably need allowPanningOnScrollingParent: false, in MapOptions
+
 Note: This layer should probably be the last layer IF it needs to be dragged (otherwise why would you use this :)), otherwise other layers may intercept the gestures.
 
 Add the `DragMarkerPlugin(),` to the plugins list, and then reference `DragMarkerPluginOptions` in your flutter_map layers.
@@ -23,6 +25,7 @@ dragging any more, so thoughts welcome.
 
 FlutterMap(
   options: MapOptions(
+    allowPanningOnScrollingParent: false, /// IMPORTANT for dragging
     plugins: [
       DragMarkerPlugin(),
     ],

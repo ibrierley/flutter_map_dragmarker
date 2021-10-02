@@ -23,7 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_map: any
+  flutter_map: 0.14.0
+
   flutter_map_dragmarker:
     path: ../
   latlong2: 0.8.0

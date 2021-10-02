@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_dragmarker/dragmarker.dart';
+
 void main() {
   runApp(TestApp());
 }
@@ -27,6 +28,7 @@ class _TestAppState extends State<TestApp> {
           child: Container(
             child: FlutterMap(
               options: MapOptions(
+                allowPanningOnScrollingParent: false,
                 plugins: [
                   DragMarkerPlugin(),
                 ],

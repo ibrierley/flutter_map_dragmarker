@@ -97,6 +97,7 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     updatePixelPos(widget.marker.point);
 
     return GestureDetector(
+      behavior: HitTestBehavior.deferToChild,
       onPanStart:  onPanStart,
       onPanUpdate: onPanUpdate,
       onPanEnd:    onPanEnd,
