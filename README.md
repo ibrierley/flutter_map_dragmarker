@@ -21,7 +21,7 @@ Also may be interesting to move the map alternately to marker, so the marker sta
 dragging any more, so thoughts welcome.
 
 
-```
+```dart
 
 FlutterMap(
   options: MapOptions(
