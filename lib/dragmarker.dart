@@ -96,6 +96,10 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     DragMarker marker = widget.marker;
     updatePixelPos(widget.marker.point);
 
+    bool feedBackEnabled = isDragging && marker.feedbackBuilder != null;
+    Widget displayMarker = feedBackEnabled ? marker.feedbackBuilder!(context) :
+      marker.builder!(context);
+
     return GestureDetector(
       behavior: HitTestBehavior.deferToChild,
       onPanStart:  onPanStart,
@@ -114,10 +118,11 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
           marker.feedbackOffset.dx : marker.offset.dx),
           top:  pixelPosition.y + ((isDragging && (marker.feedbackOffset != null)) ?
           marker.feedbackOffset.dy : marker.offset.dy),
-          child: (isDragging && (marker.feedbackBuilder != null)) ?
-          marker.feedbackBuilder!(context) : marker.builder!(context),
-        ),
-      ]),
+          child: widget.marker.rotateMarker ? Transform.rotate(
+            angle: -widget.mapState!.rotationRad,
+            child: displayMarker
+          ) : displayMarker
+        )]),
     );
 
   }
@@ -292,6 +297,7 @@ class DragMarker {
   final bool updateMapNearEdge;
   final double nearEdgeRatio;
   final double nearEdgeSpeed;
+  final bool rotateMarker;
   late Anchor anchor;
 
   DragMarker({
@@ -310,6 +316,7 @@ class DragMarker {
     this.updateMapNearEdge = false, // experimental
     this.nearEdgeRatio = 1.5,
     this.nearEdgeSpeed = 1.0,
+    this.rotateMarker = true,
     AnchorPos? anchorPos,
   }) {
     anchor = Anchor.forPos(anchorPos, width, height);

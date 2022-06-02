@@ -58,6 +58,7 @@ class _TestAppState extends State<TestApp> {
                       updateMapNearEdge: true,
                       nearEdgeRatio: 2.0,
                       nearEdgeSpeed: 1.0,
+                      rotateMarker: true
                     ),
                     DragMarker(
                       point: LatLng(45.535, -122.675),
@@ -66,6 +67,7 @@ class _TestAppState extends State<TestApp> {
                       builder: (ctx) => Container( child: Icon(Icons.location_on, size: 50) ),
                       onDragEnd: (details,point) { print('Finished Drag $details $point'); },
                       updateMapNearEdge: false,
+                      rotateMarker: true
                     )
                   ],
                 ),
