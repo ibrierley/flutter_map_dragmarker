@@ -98,9 +98,12 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     return GestureDetector(
       behavior: HitTestBehavior.deferToChild,
-      onPanStart: onPanStart,
-      onPanUpdate: onPanUpdate,
-      onPanEnd: onPanEnd,
+      onPanStart: marker.useLongPress ? null : onPanStart,
+      onPanUpdate: marker.useLongPress ? null : onPanUpdate,
+      onPanEnd: marker.useLongPress ? null : onPanEnd,
+      onLongPressStart: marker.useLongPress ? onLongPanStart : null,
+      onLongPressMoveUpdate: marker.useLongPress ? onLongPanUpdate : null,
+      onLongPressEnd: marker.useLongPress ? onLongPanEnd : null,
       onTap: () {
         if (marker.onTap != null) {
           marker.onTap!(marker.point);
@@ -144,23 +147,32 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     }
   }
 
-  void onPanStart(details) {
+  void _start(Offset localPosition) {
     isDragging = true;
-    dragPosStart = _offsetToCrs(details.localPosition);
+    dragPosStart = _offsetToCrs(localPosition);
     markerPointStart =
         LatLng(widget.marker.point.latitude, widget.marker.point.longitude);
-
-    if (widget.marker.onDragStart != null) {
-      widget.marker.onDragStart!(details, widget.marker.point);
-    }
   }
 
-  void onPanUpdate(DragUpdateDetails details) {
+  void onPanStart(DragStartDetails details) {
+    _start(details.localPosition);
+    DragMarker marker = widget.marker;
+    if (marker.onDragStart != null) marker.onDragStart!(details, marker.point);
+  }
+
+  void onLongPanStart(LongPressStartDetails details) {
+    _start(details.localPosition);
+    DragMarker marker = widget.marker;
+    if (marker.onLongDragStart != null)
+      marker.onLongDragStart!(details, marker.point);
+  }
+
+  void _pan(Offset localPosition) {
     bool isDragging = true;
     DragMarker marker = widget.marker;
     MapState? mapState = widget.mapState;
 
-    var dragPos = _offsetToCrs(details.localPosition);
+    var dragPos = _offsetToCrs(localPosition);
 
     var deltaLat = dragPos.latitude - dragPosStart.latitude;
     var deltaLon = dragPos.longitude - dragPosStart.longitude;
@@ -226,10 +238,20 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
           markerPointStart.longitude + deltaLon);
       updatePixelPos(marker.point);
     });
+  }
 
-    if (marker.onDragUpdate != null) {
+  void onPanUpdate(DragUpdateDetails details) {
+    _pan(details.localPosition);
+    DragMarker marker = widget.marker;
+    if (marker.onDragUpdate != null)
       marker.onDragUpdate!(details, marker.point);
-    }
+  }
+
+  void onLongPanUpdate(LongPressMoveUpdateDetails details) {
+    _pan(details.localPosition);
+    DragMarker marker = widget.marker;
+    if (marker.onLongDragUpdate != null)
+      marker.onLongDragUpdate!(details, marker.point);
   }
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
@@ -253,12 +275,22 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     }
   }
 
-  void onPanEnd(details) {
+  void _end() {
     isDragging = false;
     if (autoDragTimer != null) autoDragTimer?.cancel();
-    if (widget.marker.onDragEnd != null) {
+  }
+
+  void onPanEnd(details) {
+    _end();
+    if (widget.marker.onDragEnd != null)
       widget.marker.onDragEnd!(details, widget.marker.point);
-    }
+    setState(() {}); // Needed if using a feedback widget
+  }
+
+  void onLongPanEnd(details) {
+    _end();
+    if (widget.marker.onLongDragEnd != null)
+      widget.marker.onLongDragEnd!(details, widget.marker.point);
     setState(() {}); // Needed if using a feedback widget
   }
 
@@ -294,9 +326,13 @@ class DragMarker {
   final double height;
   final Offset offset;
   final Offset feedbackOffset;
+  final bool useLongPress;
   final Function(DragStartDetails, LatLng)? onDragStart;
   final Function(DragUpdateDetails, LatLng)? onDragUpdate;
   final Function(DragEndDetails, LatLng)? onDragEnd;
+  final Function(LongPressStartDetails, LatLng)? onLongDragStart;
+  final Function(LongPressMoveUpdateDetails, LatLng)? onLongDragUpdate;
+  final Function(LongPressEndDetails, LatLng)? onLongDragEnd;
   final Function(LatLng)? onTap;
   final Function(LatLng)? onLongPress;
   final bool updateMapNearEdge;
@@ -313,9 +349,13 @@ class DragMarker {
     this.height = 30.0,
     this.offset = const Offset(0.0, 0.0),
     this.feedbackOffset = const Offset(0.0, 0.0),
+    this.useLongPress = false,
     this.onDragStart,
     this.onDragUpdate,
     this.onDragEnd,
+    this.onLongDragStart,
+    this.onLongDragUpdate,
+    this.onLongDragEnd,
     this.onTap,
     this.onLongPress,
     this.updateMapNearEdge = false, // experimental
