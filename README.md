@@ -1,5 +1,7 @@
 # flutter_map_dragmarker
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F8E2YBE)
+
 A drag marker for [`flutter_map`](https://github.com/fleaflet/flutter_map/)
 
 See the `main.dart` file in the `example` folder for usage, but the included example below in this file should show pretty much everything.
