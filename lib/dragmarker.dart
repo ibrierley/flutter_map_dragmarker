@@ -3,42 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/plugin_api.dart';
 
-class DragMarkerPluginOptions extends LayerOptions {
-  List<DragMarker> markers;
-  DragMarkerPluginOptions({this.markers = const []});
+class DragMarkerPlugin extends StatelessWidget {
+
+  final List<DragMarker> markers;
+
+  const DragMarkerPlugin({super.key, this.markers = const []});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.maybeOf(context)!;
+    var dragMarkers = <Widget>[];
+    for (var marker in markers) {
+      if (!_boundsContainsMarker(mapState, marker)) continue;
+
+      dragMarkers.add(DragMarkerWidget(
+          mapState: mapState,
+          marker: marker));
+    }
+    return Stack(children: dragMarkers);
+  }
 }
 
-class DragMarkerPlugin implements MapPlugin {
-  @override
-  Widget createLayer(LayerOptions options, MapState mapState, stream) {
-    if (options is DragMarkerPluginOptions) {
-      return StreamBuilder<void>(
-          stream: stream,
-          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-            var dragMarkers = <Widget>[];
-            for (var marker in options.markers) {
-              if (!_boundsContainsMarker(mapState, marker)) continue;
-
-              dragMarkers.add(DragMarkerWidget(
-                  mapState: mapState,
-                  marker: marker,
-                  stream: stream,
-                  options: options));
-            }
-            return Stack(children: dragMarkers);
-          });
-    }
-
-    throw Exception('Unknown options type for MyCustom'
-        'plugin: $options');
-  }
-
-  @override
-  bool supportsLayer(LayerOptions options) {
-    return options is DragMarkerPluginOptions;
-  }
-
-  static bool _boundsContainsMarker(MapState map, DragMarker marker) {
+bool _boundsContainsMarker(MapState map, DragMarker marker) {
     var pixelPoint = map.project(marker.point);
 
     final width = marker.width - marker.anchor.left;
@@ -49,24 +35,19 @@ class DragMarkerPlugin implements MapPlugin {
 
     return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
   }
-}
 
 class DragMarkerWidget extends StatefulWidget {
   const DragMarkerWidget(
       {Key? key,
       this.mapState,
       required this.marker,
-      AnchorPos? anchorPos,
-      this.stream,
-      this.options})
+      AnchorPos? anchorPos})
       //: anchor = Anchor.forPos(anchorPos, marker.width, marker.height);
       : super(key: key);
 
   final MapState? mapState;
   //final Anchor anchor;
   final DragMarker marker;
-  final Stream<void>? stream;
-  final LayerOptions? options;
 
   @override
   State<DragMarkerWidget> createState() => _DragMarkerWidgetState();

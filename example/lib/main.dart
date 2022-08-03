@@ -28,18 +28,15 @@ class _TestAppState extends State<TestApp> {
             child: FlutterMap(
               options: MapOptions(
                 allowPanningOnScrollingParent: false,
-                plugins: [
-                  DragMarkerPlugin(),
-                ],
                 center: LatLng(45.5231, -122.6765),
                 zoom: 6.4,
               ),
-              layers: [
-                TileLayerOptions(
+              children: [
+                TileLayerWidget(options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c']),
-                DragMarkerPluginOptions(
+                    subdomains: ['a', 'b', 'c'])),
+                DragMarkerPlugin(
                   markers: [
                     DragMarker(
                         point: LatLng(45.2131, -122.6765),
