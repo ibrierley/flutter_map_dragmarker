@@ -27,54 +27,53 @@ dragging any more, so thoughts welcome.
 
 ```dart
 FlutterMap(
-  options: MapOptions(
-    allowPanningOnScrollingParent: false, /// IMPORTANT for dragging
-    plugins: [
-      DragMarkerPlugin(),
-    ],
-    center: LatLng(45.5231, -122.6765),
-    zoom: 6.4,
-  ),
-  layers: [
-    TileLayerOptions(
-        urlTemplate:
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        subdomains: ['a', 'b', 'c']),
-        DragMarkerPluginOptions(
-          markers: [
-            DragMarker(
-              point: LatLng(45.2131, -122.6765),
-              width: 80.0,
-              height: 80.0,
-              offset: Offset(0.0, -8.0),
-              builder: (ctx) => Container( child: Icon(Icons.location_on, size: 50) ),
-              useLongPress: false,
-              onDragStart:  (details,point) => print("Start point $point"),
-              onDragEnd:    (details,point) => print("End point $point"),
-              onDragUpdate: (details,point) {},
-              onLongDragStart:  (details,point) => print("Start point $point"),
-              onLongDragEnd:    (details,point) => print("End point $point"),
-              onLongDragUpdate: (details,point) {},
-              onTap:        (point) { print("on tap"); },
-              onLongPress:  (point) { print("on long press"); },
-              feedbackBuilder: (ctx) => Container( child: Icon(Icons.edit_location, size: 75) ),
-              feedbackOffset: Offset(0.0, -18.0),
-              updateMapNearEdge: true,	// Experimental, move the map when marker close to edge
-              nearEdgeRatio: 2.0,	// Experimental
-              nearEdgeSpeed: 1.0,	// Experimental
-              rotateMarker: true,   // Experimental
+            options: MapOptions(
+              absorbPanEventsOnScrollables: false, // important to allow panning
+              center: LatLng(45.5231, -122.6765),
+              zoom: 6.4,
             ),
-            DragMarker(
-              point: LatLng(45.535, -122.675),
-              width: 80.0,
-              height: 80.0,
-              builder: (ctx) => Container( child: Icon(Icons.location_on, size: 50) ),
-              onDragEnd: (details,point) { print('Finished Drag $details $point'); },
-              updateMapNearEdge: false,
-              rotateMarker: true,
-            )
-          ],
-      ),
-  ],
-),
+            children: [
+              TileLayer(
+                  urlTemplate:
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: ['a', 'b', 'c']),
+              DragMarkers(
+                markers: [
+                  DragMarker(
+                    point: LatLng(45.2131, -122.6765),
+                    width: 80.0,
+                    height: 80.0,
+                    offset: const Offset(0.0, -8.0),
+                    builder: (ctx) => const Icon(Icons.location_on, size: 50),
+                    onDragStart: (details, point) =>
+                        print("Start point $point"),
+                    onDragEnd: (details, point) => print("End point $point"),
+                    onDragUpdate: (details, point) {},
+                    onTap: (point) {
+                      print("on tap");
+                    },
+                    onLongPress: (point) {
+                      print("on long press");
+                    },
+                    feedbackBuilder: (ctx) =>
+                        const Icon(Icons.edit_location, size: 75),
+                    feedbackOffset: const Offset(0.0, -18.0),
+                    updateMapNearEdge: true,
+                    nearEdgeRatio: 2.0,
+                    nearEdgeSpeed: 1.0,
+                  ),
+                  DragMarker(
+                    point: LatLng(45.535, -122.675),
+                    width: 80.0,
+                    height: 80.0,
+                    builder: (ctx) => const Icon(Icons.location_on, size: 50),
+                    onDragEnd: (details, point) {
+                      print('Finished Drag $details $point');
+                    },
+                    updateMapNearEdge: false,
+                  )
+                ],
+              ),
+            ],
+          ),
 ```

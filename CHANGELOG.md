@@ -1,5 +1,8 @@
+[4.0.0]
+Flutter_map breaking changes for flutter_map version 3.0
+
 [3.0.0]
-Flutter_map icnreased to version 2.0 so bumping in case of breaking changes
+Flutter_map increased to version 2.0 so bumping in case of breaking changes
 
 [2.0.0]
 Flutter_map increased to version 1.0 to bumping up in case of breaking changes

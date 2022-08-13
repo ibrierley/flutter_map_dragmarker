@@ -3,43 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/plugin_api.dart';
 
-class DragMarkerPluginOptions extends LayerOptions {
-  List<DragMarker> markers;
-  DragMarkerPluginOptions({this.markers = const []});
+class DragMarkers extends StatefulWidget {
+  final List<DragMarker> markers;
+
+  DragMarkers({Key? key, this.markers = const []});
+
+  @override
+  State<DragMarkers> createState() => _DragMarkersState();
 }
 
-class DragMarkerPlugin implements MapPlugin {
+class _DragMarkersState extends State<DragMarkers> {
   @override
-  Widget createLayer(LayerOptions options, MapState mapState, stream) {
-    if (options is DragMarkerPluginOptions) {
-      return StreamBuilder<void>(
-          stream: stream,
-          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-            var dragMarkers = <Widget>[];
-            for (var marker in options.markers) {
-              if (!_boundsContainsMarker(mapState, marker)) continue;
+  void initState() {
+    super.initState();
+  }
 
-              dragMarkers.add(DragMarkerWidget(
-                  mapState: mapState,
-                  marker: marker,
-                  stream: stream,
-                  options: options));
-            }
-            return Stack(children: dragMarkers);
-          });
+  @override
+  Widget build(BuildContext context) {
+    var dragMarkers = <Widget>[];
+
+    FlutterMapState? mapState = FlutterMapState.maybeOf(context);
+
+    for (var marker in widget.markers) {
+      if (!_boundsContainsMarker(mapState, marker)) continue;
+
+      dragMarkers.add(DragMarkerWidget(
+          mapState: mapState,
+          marker: marker));
     }
-
-    throw Exception('Unknown options type for MyCustom'
-        'plugin: $options');
+    return Stack(children: dragMarkers);
   }
 
-  @override
-  bool supportsLayer(LayerOptions options) {
-    return options is DragMarkerPluginOptions;
-  }
-
-  static bool _boundsContainsMarker(MapState map, DragMarker marker) {
-    var pixelPoint = map.project(marker.point);
+  static bool _boundsContainsMarker(FlutterMapState? map, DragMarker marker) {
+    var pixelPoint = map!.project(marker.point);
 
     final width = marker.width - marker.anchor.left;
     final height = marker.height - marker.anchor.top;
@@ -56,17 +52,13 @@ class DragMarkerWidget extends StatefulWidget {
       {Key? key,
       this.mapState,
       required this.marker,
-      AnchorPos? anchorPos,
-      this.stream,
-      this.options})
+      AnchorPos? anchorPos})
       //: anchor = Anchor.forPos(anchorPos, marker.width, marker.height);
       : super(key: key);
 
-  final MapState? mapState;
+  final FlutterMapState? mapState;
   //final Anchor anchor;
   final DragMarker marker;
-  final Stream<void>? stream;
-  final LayerOptions? options;
 
   @override
   State<DragMarkerWidget> createState() => _DragMarkerWidgetState();
@@ -97,7 +89,6 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
         : marker.builder!(context);
 
     return GestureDetector(
-      behavior: HitTestBehavior.deferToChild,
       onPanStart: marker.useLongPress ? null : onPanStart,
       onPanUpdate: marker.useLongPress ? null : onPanUpdate,
       onPanEnd: marker.useLongPress ? null : onPanEnd,
@@ -132,14 +123,14 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void updatePixelPos(point) {
     DragMarker marker = widget.marker;
-    MapState? mapState = widget.mapState;
+    FlutterMapState? mapState = widget.mapState;
 
     CustomPoint pos;
     if (mapState != null) {
       pos = mapState.project(point);
       pos =
           pos.multiplyBy(mapState.getZoomScale(mapState.zoom, mapState.zoom)) -
-              mapState.getPixelOrigin();
+              mapState.pixelOrigin;
 
       pixelPosition = CustomPoint(
           (pos.x - (marker.width - widget.marker.anchor.left)).toDouble(),
@@ -163,21 +154,22 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   void onLongPanStart(LongPressStartDetails details) {
     _start(details.localPosition);
     DragMarker marker = widget.marker;
-    if (marker.onLongDragStart != null)
+    if (marker.onLongDragStart != null) {
       marker.onLongDragStart!(details, marker.point);
+    }
   }
 
   void _pan(Offset localPosition) {
     bool isDragging = true;
     DragMarker marker = widget.marker;
-    MapState? mapState = widget.mapState;
+    FlutterMapState? mapState = widget.mapState;
 
     var dragPos = _offsetToCrs(localPosition);
 
     var deltaLat = dragPos.latitude - dragPosStart.latitude;
     var deltaLon = dragPos.longitude - dragPosStart.longitude;
 
-    var pixelB = mapState?.getLastPixelBounds();
+    var pixelB = mapState?.getPixelBounds(mapState.zoom);    //getLastPixelBounds();
     var pixelPoint = mapState?.project(widget.marker.point);
 
     /// If we're near an edge, move the map to compensate.
@@ -243,21 +235,23 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   void onPanUpdate(DragUpdateDetails details) {
     _pan(details.localPosition);
     DragMarker marker = widget.marker;
-    if (marker.onDragUpdate != null)
+    if (marker.onDragUpdate != null) {
       marker.onDragUpdate!(details, marker.point);
+    }
   }
 
   void onLongPanUpdate(LongPressMoveUpdateDetails details) {
     _pan(details.localPosition);
     DragMarker marker = widget.marker;
-    if (marker.onLongDragUpdate != null)
+    if (marker.onLongDragUpdate != null) {
       marker.onLongDragUpdate!(details, marker.point);
+    }
   }
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
   void adjustMapToMarker(DragMarkerWidget widget, autoOffsetX, autoOffsetY) {
     DragMarker marker = widget.marker;
-    MapState? mapState = widget.mapState;
+    FlutterMapState? mapState = widget.mapState;
 
     var oldMapPos = mapState?.project(mapState.center);
     LatLng? newMapLatLng;
@@ -282,15 +276,17 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void onPanEnd(details) {
     _end();
-    if (widget.marker.onDragEnd != null)
+    if (widget.marker.onDragEnd != null) {
       widget.marker.onDragEnd!(details, widget.marker.point);
+    }
     setState(() {}); // Needed if using a feedback widget
   }
 
   void onLongPanEnd(details) {
     _end();
-    if (widget.marker.onLongDragEnd != null)
+    if (widget.marker.onLongDragEnd != null) {
       widget.marker.onLongDragEnd!(details, widget.marker.point);
+    }
     setState(() {}); // Needed if using a feedback widget
   }
 
