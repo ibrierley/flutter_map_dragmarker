@@ -1,4 +1,4 @@
-[4.0.0]
+[4.0.0-beta.1]
 Flutter_map breaking changes for flutter_map version 3.0
 
 [3.0.0]
