@@ -1,3 +1,6 @@
+[4.0.1]
+Bug fix for position getting reset on a rebuild #18
+
 [4.0.0]
 Flutter_map breaking changes for flutter_map version 3.0
 
