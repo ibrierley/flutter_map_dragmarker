@@ -1,3 +1,6 @@
+[4.0.2]
+Bug fix for 4.0.1 position not updating widget
+
 [4.0.1]
 Bug fix for position getting reset on a rebuild #18
 

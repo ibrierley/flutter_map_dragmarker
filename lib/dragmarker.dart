@@ -230,6 +230,7 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     setState(() {
       markerPoint = LatLng(markerPointStart.latitude + deltaLat,
           markerPointStart.longitude + deltaLon);
+      widget.marker.point = markerPoint;
       updatePixelPos(markerPoint);
     });
   }
