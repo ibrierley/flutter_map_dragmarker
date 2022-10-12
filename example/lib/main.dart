@@ -38,6 +38,7 @@ class _TestAppState extends State<TestApp> {
               DragMarkers(
                 markers: [
                   DragMarker(
+                    key: ValueKey(1),
                     point: LatLng(45.2131, -122.6765),
                     width: 80.0,
                     height: 80.0,
@@ -60,7 +61,9 @@ class _TestAppState extends State<TestApp> {
                     nearEdgeRatio: 2.0,
                     nearEdgeSpeed: 1.0,
                   ),
+
                   DragMarker(
+                    key: ValueKey(2),
                     point: LatLng(45.535, -122.675),
                     width: 80.0,
                     height: 80.0,
@@ -70,6 +73,8 @@ class _TestAppState extends State<TestApp> {
                     },
                     updateMapNearEdge: false,
                   )
+
+
                 ],
               ),
             ],

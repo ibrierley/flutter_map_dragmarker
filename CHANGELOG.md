@@ -1,3 +1,7 @@
+[4.1.2]
+Bug fix to include a key when a dragmarker is removed due to out of bounds causing incorrect
+marker to disappear
+
 [4.0.2]
 Bug fix for 4.0.1 position not updating widget
 

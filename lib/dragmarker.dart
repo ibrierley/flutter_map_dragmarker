@@ -24,24 +24,28 @@ class _DragMarkersState extends State<DragMarkers> {
 
     FlutterMapState? mapState = FlutterMapState.maybeOf(context);
 
-    for (var marker in widget.markers) {
-      if (!_boundsContainsMarker(mapState, marker)) continue;
+    for (var c = 0; c<widget.markers.length; c++) {
+      if (!_boundsContainsMarker(mapState, widget.markers[c])) continue;
 
       dragMarkers.add(DragMarkerWidget(
+        key: widget.markers[c].key ?? ValueKey(c),
           mapState: mapState,
-          marker: marker));
+          marker: widget.markers[c]));
     }
     return Stack(children: dragMarkers);
   }
 
   static bool _boundsContainsMarker(FlutterMapState? map, DragMarker marker) {
-    var pixelPoint = map!.project(marker.point);
+    var pxPoint = map!.project(marker.point);
 
-    final width = marker.width - marker.anchor.left;
-    final height = marker.height - marker.anchor.top;
+    final rightPortion = marker.width - marker.anchor.left;
+    final leftPortion = marker.anchor.left;
+    final bottomPortion = marker.height - marker.anchor.top;
+    final topPortion = marker.anchor.top;
 
-    var sw = CustomPoint(pixelPoint.x + width, pixelPoint.y - height);
-    var ne = CustomPoint(pixelPoint.x - width, pixelPoint.y + height);
+    final sw =
+    CustomPoint(pxPoint.x + leftPortion - 100, pxPoint.y - bottomPortion + 100);
+    final ne = CustomPoint(pxPoint.x - rightPortion + 100, pxPoint.y + topPortion - 100);
 
     return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
   }
@@ -319,6 +323,7 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
 
 class DragMarker {
   LatLng point;
+  final Key? key;
   final WidgetBuilder? builder;
   final WidgetBuilder? feedbackBuilder;
   final double width;
@@ -342,6 +347,7 @@ class DragMarker {
 
   DragMarker({
     required this.point,
+    this.key,
     this.builder,
     this.feedbackBuilder,
     this.width = 30.0,
