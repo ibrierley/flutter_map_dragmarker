@@ -14,15 +14,15 @@ class DragMarkers extends StatelessWidget {
     final mapState = FlutterMapState.maybeOf(context) ??
         (throw StateError(
             '`DragMarkers` is a map layer and should not be build outside '
-                'a `FlutterMap` context.'));
+            'a `FlutterMap` context.'));
     return Stack(
       children: markers
           .where((marker) => _boundsContainsMarker(mapState, marker))
           .map((marker) => DragMarkerWidget(
-        key: marker.key,
-        mapState: mapState,
-        marker: marker,
-      ))
+                key: marker.key,
+                mapState: mapState,
+                marker: marker,
+              ))
           .toList(growable: false),
     );
   }
