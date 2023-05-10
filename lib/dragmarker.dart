@@ -6,7 +6,7 @@ import 'package:flutter_map/plugin_api.dart';
 class DragMarkers extends StatefulWidget {
   final List<DragMarker> markers;
 
-  DragMarkers({Key? key, this.markers = const []});
+  const DragMarkers({super.key, this.markers = const []});
 
   @override
   State<DragMarkers> createState() => _DragMarkersState();
@@ -101,9 +101,6 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
       onHorizontalDragStart:  marker.useLongPress ? null : onPanStart,
       onHorizontalDragUpdate:  marker.useLongPress ? null : onPanUpdate,
       onHorizontalDragEnd: marker.useLongPress ? null : onPanEnd,
-      onPanStart: marker.useLongPress ? null : onPanStart,
-      onPanUpdate: marker.useLongPress ? null : onPanUpdate,
-      onPanEnd: marker.useLongPress ? null : onPanEnd,
       onLongPressStart: marker.useLongPress ? onLongPanStart : null,
       onLongPressMoveUpdate: marker.useLongPress ? onLongPanUpdate : null,
       onLongPressEnd: marker.useLongPress ? onLongPanEnd : null,
@@ -263,7 +260,6 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
   void adjustMapToMarker(DragMarkerWidget widget, autoOffsetX, autoOffsetY) {
-    DragMarker marker = widget.marker;
     FlutterMapState? mapState = widget.mapState;
 
     var oldMapPos = mapState?.project(mapState.center);
