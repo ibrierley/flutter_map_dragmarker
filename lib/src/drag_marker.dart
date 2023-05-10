@@ -108,5 +108,6 @@ class DragMarker {
     AnchorPos? anchorPos,
   })  : key = key ?? GlobalKey<DragMarkerWidgetState>(),
         anchor = Anchor.forPos(anchorPos, width, height),
-        builder = ((_) => Icon(Icons.location_on, size: min(width, height)));
+        builder = builder ??
+            ((_) => Icon(Icons.location_on, size: min(width, height)));
 }
