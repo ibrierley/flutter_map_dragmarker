@@ -5,9 +5,10 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
 /// The data class has all information that is required for the DragMarkerWidget
+@immutable
 class DragMarker {
   /// The initial coordinates of the marker
-  LatLng point;
+  final LatLng point;
 
   /// A unique key for the marker
   final Key? key;

@@ -25,10 +25,15 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   late LatLng dragPosStart;
   late LatLng markerPointStart;
   late LatLng oldDragPosition;
+  late LatLng markerPoint;
   bool isDragging = false;
   Timer? autoDragTimer;
 
-  LatLng get markerPoint => widget.marker.point;
+  @override
+  void initState() {
+    markerPoint = widget.marker.point;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +182,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     }
 
     setState(() {
-      widget.marker.point = LatLng(markerPointStart.latitude + deltaLat,
+      markerPoint = LatLng(markerPointStart.latitude + deltaLat,
           markerPointStart.longitude + deltaLon);
       _updatePixelPos(markerPoint);
     });
@@ -210,7 +215,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
       oldMapPos.y + autoOffsetY,
     ));
 
-    widget.marker.point = mapState.unproject(CustomPoint(
+    markerPoint = mapState.unproject(CustomPoint(
       oldMarkerPoint.x + autoOffsetX,
       oldMarkerPoint.y + autoOffsetY,
     ));
