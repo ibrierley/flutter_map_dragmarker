@@ -14,6 +14,11 @@ class TestApp extends StatefulWidget {
 }
 
 class TestAppState extends State<TestApp> {
+  final List<LatLng> markerCoords = [
+    LatLng(45.535, -122.675),
+    LatLng(45.2131, -122.6765),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,16 +36,17 @@ class TestAppState extends State<TestApp> {
               DragMarkers(
                 markers: [
                   DragMarker(
-                    point: LatLng(45.535, -122.675),
+                    point: markerCoords[0],
                     width: 50.0,
                     height: 50.0,
                     onDragStart: (details, point) =>
                         debugPrint("Start point $point"),
                     onDragEnd: (details, point) =>
                         debugPrint('End point $details $point'),
+                    onDragUpdate: (details, latLng) => markerCoords[0] = latLng,
                   ),
                   DragMarker(
-                    point: LatLng(45.2131, -122.6765),
+                    point: markerCoords[1],
                     width: 50.0,
                     height: 50.0,
                     offset: const Offset(0.0, -8.0),
@@ -51,6 +57,7 @@ class TestAppState extends State<TestApp> {
                         debugPrint("End point $point"),
                     onTap: (point) => debugPrint("on tap"),
                     onLongPress: (point) => debugPrint("on long press"),
+                    onDragUpdate: (details, latLng) => markerCoords[1] = latLng,
                     feedbackBuilder: (ctx) =>
                         const Icon(Icons.edit_location, size: 75),
                     feedbackOffset: const Offset(0.0, -18.0),
