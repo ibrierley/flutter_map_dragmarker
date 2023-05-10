@@ -22,7 +22,7 @@ class TestAppState extends State<TestApp> {
           child: FlutterMap(
             options: MapOptions(
               center: LatLng(45.5231, -122.6765),
-              zoom: 6.4,
+              zoom: 9,
             ),
             children: [
               TileLayer(
@@ -31,9 +31,18 @@ class TestAppState extends State<TestApp> {
               DragMarkers(
                 markers: [
                   DragMarker(
+                    point: LatLng(45.535, -122.675),
+                    width: 50.0,
+                    height: 50.0,
+                    onDragStart: (details, point) =>
+                        debugPrint("Start point $point"),
+                    onDragEnd: (details, point) =>
+                        debugPrint('End point $details $point'),
+                  ),
+                  DragMarker(
                     point: LatLng(45.2131, -122.6765),
-                    width: 80.0,
-                    height: 80.0,
+                    width: 50.0,
+                    height: 50.0,
                     offset: const Offset(0.0, -8.0),
                     builder: (ctx) => const Icon(Icons.location_on, size: 50),
                     onDragStart: (details, point) =>
@@ -49,14 +58,6 @@ class TestAppState extends State<TestApp> {
                     nearEdgeRatio: 2.0,
                     nearEdgeSpeed: 1.0,
                   ),
-                  DragMarker(
-                    point: LatLng(45.535, -122.675),
-                    width: 80.0,
-                    height: 80.0,
-                    builder: (ctx) => const Icon(Icons.location_on, size: 50),
-                    onDragEnd: (details, point) =>
-                        debugPrint('Finished Drag $details $point'),
-                  )
                 ],
               ),
             ],
