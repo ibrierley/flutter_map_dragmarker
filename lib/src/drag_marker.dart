@@ -36,31 +36,34 @@ class DragMarker {
   final bool useLongPress;
 
   /// This callback gets called when the DragMarker starts to get dragged
-  final void Function(DragStartDetails, LatLng)? onDragStart;
+  final void Function(DragStartDetails details, LatLng latLng)? onDragStart;
 
   /// This callback gets called when the DragMarker gets dragged around
-  final void Function(DragUpdateDetails, LatLng)? onDragUpdate;
+  final void Function(DragUpdateDetails details, LatLng latLng)? onDragUpdate;
 
   /// This callback gets called when the DragMarker stopps to get dragged
-  final void Function(DragEndDetails, LatLng)? onDragEnd;
+  final void Function(DragEndDetails details, LatLng latLng)? onDragEnd;
 
   /// This callback gets called when the DragMarker starts to get dragged with
   /// the [useLongPress] option enabled
-  final void Function(LongPressStartDetails, LatLng)? onLongDragStart;
+  final void Function(LongPressStartDetails details, LatLng latLng)?
+      onLongDragStart;
 
   /// This callback gets called when the DragMarker gets dragged with
   /// the [useLongPress] option enabled
-  final void Function(LongPressMoveUpdateDetails, LatLng)? onLongDragUpdate;
+  final void Function(LongPressMoveUpdateDetails details, LatLng latLng)?
+      onLongDragUpdate;
 
   /// This callback gets called when the DragMarker stopps to get dragged with
   /// the [useLongPress] option enabled
-  final void Function(LongPressEndDetails, LatLng)? onLongDragEnd;
+  final void Function(LongPressEndDetails details, LatLng latLng)?
+      onLongDragEnd;
 
   /// This callback gets called when the DragMarkerWidget gets tapped
-  final void Function(LatLng)? onTap;
+  final void Function(LatLng latLng)? onTap;
 
   /// This callback gets called when the DragMarkerWiidget gets long pressed
-  final void Function(LatLng)? onLongPress;
+  final void Function(LatLng latLng)? onLongPress;
 
   /// EXPERIMENTAL, When this flag is enabled the map scrolls around when
   /// dragging a marker near an edge
