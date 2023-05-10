@@ -5,20 +5,17 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_dragmarker/dragmarker.dart';
 
 void main() {
-  runApp(TestApp());
+  runApp(const TestApp());
 }
 
 class TestApp extends StatefulWidget {
+  const TestApp({super.key});
+
   @override
-  _TestAppState createState() => _TestAppState();
+  TestAppState createState() => TestAppState();
 }
 
-class _TestAppState extends State<TestApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class TestAppState extends State<TestApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,25 +31,25 @@ class _TestAppState extends State<TestApp> {
               TileLayer(
                   urlTemplate:
                   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  subdomains: ['a', 'b', 'c']),
+                  subdomains: const ['a', 'b', 'c']),
               DragMarkers(
                 markers: [
                   DragMarker(
-                    key: ValueKey(1),
+                    key: const ValueKey(1),
                     point: LatLng(45.2131, -122.6765),
                     width: 80.0,
                     height: 80.0,
                     offset: const Offset(0.0, -8.0),
                     builder: (ctx) => const Icon(Icons.location_on, size: 50),
                     onDragStart: (details, point) =>
-                        print("Start point $point"),
-                    onDragEnd: (details, point) => print("End point $point"),
+                        debugPrint("Start point $point"),
+                    onDragEnd: (details, point) => debugPrint("End point $point"),
                     onDragUpdate: (details, point) {},
                     onTap: (point) {
-                      print("on tap");
+                      debugPrint("on tap");
                     },
                     onLongPress: (point) {
-                      print("on long press");
+                      debugPrint("on long press");
                     },
                     feedbackBuilder: (ctx) =>
                     const Icon(Icons.edit_location, size: 75),
@@ -63,13 +60,13 @@ class _TestAppState extends State<TestApp> {
                   ),
 
                   DragMarker(
-                    key: ValueKey(2),
+                    key: const ValueKey(2),
                     point: LatLng(45.535, -122.675),
                     width: 80.0,
                     height: 80.0,
                     builder: (ctx) => const Icon(Icons.location_on, size: 50),
                     onDragEnd: (details, point) {
-                      print('Finished Drag $details $point');
+                      debugPrint('Finished Drag $details $point');
                     },
                     updateMapNearEdge: false,
                   )

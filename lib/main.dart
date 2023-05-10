@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:latlong2/latlong.dart';
+
 import 'dragmarker.dart';
 
 void main() {
@@ -36,7 +37,7 @@ class _TestAppState extends State<TestApp> {
               TileLayer(
                   urlTemplate:
                       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  subdomains: ['a', 'b', 'c']),
+                  subdomains: const ['a', 'b', 'c']),
               DragMarkers(
                 markers: [
                   DragMarker(
@@ -46,14 +47,15 @@ class _TestAppState extends State<TestApp> {
                     offset: const Offset(0.0, -8.0),
                     builder: (ctx) => const Icon(Icons.location_on, size: 50),
                     onDragStart: (details, point) =>
-                        print("Start point $point"),
-                    onDragEnd: (details, point) => print("End point $point"),
+                        debugPrint("Start point $point"),
+                    onDragEnd: (details, point) =>
+                        debugPrint("End point $point"),
                     onDragUpdate: (details, point) {},
                     onTap: (point) {
-                      print("on tap");
+                      debugPrint("on tap");
                     },
                     onLongPress: (point) {
-                      print("on long press");
+                      debugPrint("on long press");
                     },
                     feedbackBuilder: (ctx) =>
                         const Icon(Icons.edit_location, size: 75),
@@ -68,7 +70,7 @@ class _TestAppState extends State<TestApp> {
                     height: 80.0,
                     builder: (ctx) => const Icon(Icons.location_on, size: 50),
                     onDragEnd: (details, point) {
-                      print('Finished Drag $details $point');
+                      debugPrint('Finished Drag $details $point');
                     },
                     updateMapNearEdge: false,
                   )
