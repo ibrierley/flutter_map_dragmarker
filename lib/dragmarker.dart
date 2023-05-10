@@ -85,6 +85,14 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   @override
+  void didUpdateWidget(covariant DragMarkerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.marker.preservePosition && !isDragging) {
+      markerPoint = widget.marker.point;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     DragMarker marker = widget.marker;
     updatePixelPos(markerPoint);
@@ -345,6 +353,7 @@ class DragMarker {
   final double nearEdgeRatio;
   final double nearEdgeSpeed;
   final bool rotateMarker;
+  final bool preservePosition;
   late Anchor anchor;
 
   DragMarker({
@@ -369,6 +378,7 @@ class DragMarker {
     this.nearEdgeRatio = 1.5,
     this.nearEdgeSpeed = 1.0,
     this.rotateMarker = true,
+    this.preservePosition = true,
     AnchorPos? anchorPos,
   }) {
     anchor = Anchor.forPos(anchorPos, width, height);
