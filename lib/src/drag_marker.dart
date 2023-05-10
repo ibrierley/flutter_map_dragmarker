@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
@@ -9,7 +11,11 @@ class DragMarker {
 
   /// A unique key for the marker
   final Key? key;
-  final WidgetBuilder? builder;
+
+  /// The widget of the marker
+  final WidgetBuilder builder;
+
+  /// The widget of the marker while it gets dragged
   final WidgetBuilder? feedbackBuilder;
 
   /// The width of the marker widget
@@ -75,7 +81,7 @@ class DragMarker {
   DragMarker({
     required this.point,
     this.key,
-    this.builder,
+    WidgetBuilder? builder,
     this.feedbackBuilder,
     this.width = 30.0,
     this.height = 30.0,
@@ -95,5 +101,6 @@ class DragMarker {
     this.nearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     AnchorPos? anchorPos,
-  }) : anchor = Anchor.forPos(anchorPos, width, height);
+  })  : anchor = Anchor.forPos(anchorPos, width, height),
+        builder = ((_) => Icon(Icons.location_on, size: min(width, height)));
 }
