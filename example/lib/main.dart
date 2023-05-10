@@ -4,9 +4,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_dragmarker/dragmarker.dart';
 import 'package:latlong2/latlong.dart';
 
-void main() {
-  runApp(const TestApp());
-}
+void main() => runApp(const TestApp());
 
 class TestApp extends StatefulWidget {
   const TestApp({super.key});
@@ -28,9 +26,7 @@ class TestAppState extends State<TestApp> {
             ),
             children: [
               TileLayer(
-                urlTemplate:
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c'],
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
               DragMarkers(
                 markers: [
@@ -44,13 +40,8 @@ class TestAppState extends State<TestApp> {
                         debugPrint("Start point $point"),
                     onDragEnd: (details, point) =>
                         debugPrint("End point $point"),
-                    onDragUpdate: (details, point) {},
-                    onTap: (point) {
-                      debugPrint("on tap");
-                    },
-                    onLongPress: (point) {
-                      debugPrint("on long press");
-                    },
+                    onTap: (point) => debugPrint("on tap"),
+                    onLongPress: (point) => debugPrint("on long press"),
                     feedbackBuilder: (ctx) =>
                         const Icon(Icons.edit_location, size: 75),
                     feedbackOffset: const Offset(0.0, -18.0),
@@ -63,10 +54,8 @@ class TestAppState extends State<TestApp> {
                     width: 80.0,
                     height: 80.0,
                     builder: (ctx) => const Icon(Icons.location_on, size: 50),
-                    onDragEnd: (details, point) {
-                      debugPrint('Finished Drag $details $point');
-                    },
-                    updateMapNearEdge: false,
+                    onDragEnd: (details, point) =>
+                        debugPrint('Finished Drag $details $point'),
                   )
                 ],
               ),
