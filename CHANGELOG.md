@@ -1,3 +1,6 @@
+[4.1.3]
+Update for Flutter_map v4.0.0
+
 [4.1.2]
 Bug fix to include a key when a dragmarker is removed due to out of bounds causing incorrect
 marker to disappear

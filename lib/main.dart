@@ -28,7 +28,7 @@ class _TestAppState extends State<TestApp> {
         body: Center(
           child: FlutterMap(
             options: MapOptions(
-              absorbPanEventsOnScrollables: false,
+              //absorbPanEventsOnScrollables: false,
               center: LatLng(45.5231, -122.6765),
               zoom: 6.4,
             ),
