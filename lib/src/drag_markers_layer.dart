@@ -10,28 +10,26 @@ class DragMarkers extends StatefulWidget {
   const DragMarkers({super.key, this.markers = const []});
 
   @override
-  State<DragMarkers> createState() => _DragMarkersState();
+  State<DragMarkers> createState() => DragMarkersState();
 }
 
-class _DragMarkersState extends State<DragMarkers> {
+class DragMarkersState extends State<DragMarkers> {
   @override
   Widget build(BuildContext context) {
     final mapState = FlutterMapState.maybeOf(context) ??
         (throw StateError(
             '`DragMarkers` is a map layer and should not be build outside '
             'a `FlutterMap` context.'));
-    final dragMarkers = <DragMarkerWidget>[];
-
-    for (var c = 0; c < widget.markers.length; c++) {
-      if (!_boundsContainsMarker(mapState, widget.markers[c])) continue;
-
-      dragMarkers.add(DragMarkerWidget(
-        key: widget.markers[c].key ?? ValueKey(c),
-        mapState: mapState,
-        marker: widget.markers[c],
-      ));
-    }
-    return Stack(children: dragMarkers);
+    return Stack(
+      children: widget.markers
+          .where((marker) => _boundsContainsMarker(mapState, marker))
+          .map((marker) => DragMarkerWidget(
+                key: marker.key,
+                mapState: mapState,
+                marker: marker,
+              ))
+          .toList(growable: false),
+    );
   }
 
   static bool _boundsContainsMarker(FlutterMapState map, DragMarker marker) {

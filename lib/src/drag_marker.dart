@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'drag_marker_widget.dart';
+
 /// The data class has all information that is required for the DragMarkerWidget
 class DragMarker {
   /// The initial coordinates of the marker
   LatLng point;
 
   /// A unique key for the marker
-  final Key? key;
+  final Key key;
 
   /// The widget of the marker
   final WidgetBuilder builder;
@@ -80,7 +82,7 @@ class DragMarker {
 
   DragMarker({
     required this.point,
-    this.key,
+    Key? key,
     WidgetBuilder? builder,
     this.feedbackBuilder,
     this.width = 30.0,
@@ -101,6 +103,7 @@ class DragMarker {
     this.nearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     AnchorPos? anchorPos,
-  })  : anchor = Anchor.forPos(anchorPos, width, height),
+  })  : key = key ?? GlobalKey<DragMarkerWidgetState>(),
+        anchor = Anchor.forPos(anchorPos, width, height),
         builder = ((_) => Icon(Icons.location_on, size: min(width, height)));
 }
