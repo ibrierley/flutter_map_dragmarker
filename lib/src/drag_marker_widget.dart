@@ -53,7 +53,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
       onTap: () => marker.onTap?.call(markerPoint),
       onLongPress: () => marker.onLongPress?.call(markerPoint),
       // child widget
-      /* TODO using Stack while the layer widget MarkerWidgets already
+      /* using Stack while the layer widget MarkerWidgets already
           introduces a Stack to the widget tree, try to use decrease the amount
           of Stack widgets in the future. */
       child: Stack(children: [
