@@ -11,10 +11,7 @@ class DragMarker {
   final Key? key;
 
   /// The widget of the marker
-  final WidgetBuilder builder;
-
-  /// The widget of the marker while it gets dragged
-  final WidgetBuilder? feedbackBuilder;
+  final DragMarkerWidgetBuilder builder;
 
   /// The width of the marker widget
   final double width;
@@ -83,7 +80,6 @@ class DragMarker {
     required this.point,
     this.key,
     required this.builder,
-    this.feedbackBuilder,
     this.width = 30.0,
     this.height = 30.0,
     this.offset = const Offset(0, 0),
@@ -102,5 +98,11 @@ class DragMarker {
     this.nearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     AnchorPos? anchorPos,
-  })  : anchor = Anchor.forPos(anchorPos, width, height);
+  }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
+
+typedef DragMarkerWidgetBuilder = Widget Function(
+  BuildContext context,
+  LatLng pos,
+  bool isDragging,
+);

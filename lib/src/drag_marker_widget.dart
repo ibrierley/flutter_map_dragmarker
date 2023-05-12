@@ -35,10 +35,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final marker = widget.marker;
     _updatePixelPos(markerPoint);
 
-    final feedbackEnabled = isDragging && marker.feedbackBuilder != null;
-    final displayMarker = feedbackEnabled
-        ? marker.feedbackBuilder!(context)
-        : marker.builder(context);
+    final displayMarker = marker.builder(context, marker.point, isDragging);
 
     return GestureDetector(
       // drag detectors
