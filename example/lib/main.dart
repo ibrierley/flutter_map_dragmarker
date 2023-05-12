@@ -14,10 +14,71 @@ class TestApp extends StatefulWidget {
 }
 
 class TestAppState extends State<TestApp> {
-  final List<LatLng> markerCoords = [
-    LatLng(45.535, -122.675),
-    LatLng(45.2131, -122.6765),
-  ];
+  late final List<DragMarker> _dragMarkers;
+
+  @override
+  void initState() {
+    _dragMarkers = [
+      DragMarker(
+        point: LatLng(45.535, -122.675),
+        offset: const Offset(0, -30),
+        builder: (_, __, ___) => const Icon(
+          Icons.location_on,
+          size: 50,
+          color: Colors.blueGrey,
+        ),
+        onDragStart: (details, point) => debugPrint("Start point $point"),
+        onDragEnd: (details, point) => debugPrint('End point $details $point'),
+      ),
+      DragMarker(
+        point: LatLng(45.2131, -122.6765),
+        offset: const Offset(0, -30),
+        builder: (_, __, isDragging) {
+          if (isDragging) {
+            return const Icon(Icons.edit_location, size: 75);
+          }
+          return const Icon(
+            Icons.location_on,
+            size: 50,
+            color: Colors.blueGrey,
+          );
+        },
+        onDragStart: (details, point) => debugPrint("Start point $point"),
+        onDragEnd: (details, point) => debugPrint("End point $point"),
+        onTap: (point) => debugPrint("on tap"),
+        onLongPress: (point) => debugPrint("on long press"),
+        feedbackOffset: const Offset(0.0, -75),
+        updateMapNearEdge: true,
+        nearEdgeRatio: 2.0,
+        nearEdgeSpeed: 1.0,
+      ),
+      DragMarker(
+        point: LatLng(45.4131, -122.9765),
+        height: 50,
+        width: 75,
+        builder: (_, pos, ___) {
+          return Card(
+            color: Colors.blueGrey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  pos.latitude.toStringAsFixed(3),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                Text(
+                  pos.longitude.toStringAsFixed(3),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    ];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,48 +86,24 @@ class TestAppState extends State<TestApp> {
       home: Scaffold(
         body: Center(
           child: FlutterMap(
-            options: MapOptions(
-              center: LatLng(45.5231, -122.6765),
-              zoom: 9,
-            ),
+            options: MapOptions(center: LatLng(45.5231, -122.6765), zoom: 9),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
-              DragMarkers(
-                markers: [
-                  DragMarker(
-                    point: markerCoords[0],
-                    width: 50.0,
-                    height: 50.0,
-                    onDragStart: (details, point) =>
-                        debugPrint("Start point $point"),
-                    onDragEnd: (details, point) =>
-                        debugPrint('End point $details $point'),
-                    onDragUpdate: (details, latLng) => markerCoords[0] = latLng,
-                  ),
-                  DragMarker(
-                    point: markerCoords[1],
-                    width: 50.0,
-                    height: 50.0,
-                    offset: const Offset(0.0, -8.0),
-                    builder: (ctx) => const Icon(Icons.location_on, size: 50),
-                    onDragStart: (details, point) =>
-                        debugPrint("Start point $point"),
-                    onDragEnd: (details, point) =>
-                        debugPrint("End point $point"),
-                    onTap: (point) => debugPrint("on tap"),
-                    onLongPress: (point) => debugPrint("on long press"),
-                    onDragUpdate: (details, latLng) => markerCoords[1] = latLng,
-                    feedbackBuilder: (ctx) =>
-                        const Icon(Icons.edit_location, size: 75),
-                    feedbackOffset: const Offset(0.0, -18.0),
-                    updateMapNearEdge: true,
-                    nearEdgeRatio: 2.0,
-                    nearEdgeSpeed: 1.0,
-                  ),
-                ],
-              ),
+              DragMarkers(markers: _dragMarkers),
+              MarkerLayer(markers: [
+                Marker(
+                    point: LatLng(45.2131, -122.6765),
+                    builder: (_) => Container(color: Colors.red),
+                    width: 2,
+                    height: 2),
+                Marker(
+                    point: LatLng(45.535, -122.675),
+                    builder: (_) => Container(color: Colors.red),
+                    width: 2,
+                    height: 2),
+              ])
             ],
           ),
         ),
