@@ -8,7 +8,7 @@ import 'drag_marker.dart';
 
 class DragMarkerWidget extends StatefulWidget {
   const DragMarkerWidget({
-    required super.key,
+    super.key,
     required this.mapState,
     required this.marker,
   });
@@ -64,9 +64,13 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
           width: marker.width,
           height: marker.height,
           left: pixelPosition.x +
-              (isDragging ? marker.feedbackOffset.dx : marker.offset.dx),
+              (isDragging && marker.feedbackOffset != null
+                  ? marker.feedbackOffset!.dx
+                  : marker.offset.dx),
           top: pixelPosition.y +
-              (isDragging ? marker.feedbackOffset.dy : marker.offset.dy),
+              (isDragging && marker.feedbackOffset != null
+                  ? marker.feedbackOffset!.dy
+                  : marker.offset.dy),
           child: marker.rotateMarker
               ? Transform.rotate(
                   angle: -widget.mapState.rotationRad,

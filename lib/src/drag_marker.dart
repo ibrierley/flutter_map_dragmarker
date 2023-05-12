@@ -1,10 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
-
-import 'drag_marker_widget.dart';
 
 /// The data class has all information that is required for the DragMarkerWidget
 class DragMarker {
@@ -12,7 +8,7 @@ class DragMarker {
   LatLng point;
 
   /// A unique key for the marker
-  final Key key;
+  final Key? key;
 
   /// The widget of the marker
   final WidgetBuilder builder;
@@ -30,7 +26,7 @@ class DragMarker {
   final Offset offset;
 
   /// the offset while the marker gets dragged around
-  final Offset feedbackOffset;
+  final Offset? feedbackOffset;
 
   /// This flag requires a long press on the marker before it can get moved
   final bool useLongPress;
@@ -85,13 +81,13 @@ class DragMarker {
 
   DragMarker({
     required this.point,
-    Key? key,
-    WidgetBuilder? builder,
+    this.key,
+    required this.builder,
     this.feedbackBuilder,
     this.width = 30.0,
     this.height = 30.0,
     this.offset = const Offset(0, 0),
-    this.feedbackOffset = const Offset(0, 0),
+    this.feedbackOffset,
     this.useLongPress = false,
     this.onDragStart,
     this.onDragUpdate,
@@ -106,8 +102,5 @@ class DragMarker {
     this.nearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     AnchorPos? anchorPos,
-  })  : key = key ?? GlobalKey<DragMarkerWidgetState>(),
-        anchor = Anchor.forPos(anchorPos, width, height),
-        builder = builder ??
-            ((_) => Icon(Icons.location_on, size: min(width, height)));
+  })  : anchor = Anchor.forPos(anchorPos, width, height);
 }
