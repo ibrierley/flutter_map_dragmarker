@@ -23,7 +23,7 @@ class DragMarker {
   final Offset offset;
 
   /// the offset while the marker gets dragged around
-  final Offset? feedbackOffset;
+  final Offset? dragOffset;
 
   /// This flag requires a long press on the marker before it can get moved
   final bool useLongPress;
@@ -83,7 +83,7 @@ class DragMarker {
     this.width = 30.0,
     this.height = 30.0,
     this.offset = const Offset(0, 0),
-    this.feedbackOffset,
+    this.dragOffset,
     this.useLongPress = false,
     this.onDragStart,
     this.onDragUpdate,

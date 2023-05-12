@@ -33,7 +33,7 @@ class TestAppState extends State<TestApp> {
       DragMarker(
         point: LatLng(45.2131, -122.6765),
         offset: const Offset(-10, -30),
-        feedbackOffset: const Offset(-15, -45),
+        dragOffset: const Offset(-15, -45),
         builder: (_, __, isDragging) {
           if (isDragging) {
             return const Icon(

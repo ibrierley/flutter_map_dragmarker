@@ -63,12 +63,12 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
           width: marker.width,
           height: marker.height,
           left: pixelPosition.x +
-              (_isDragging && marker.feedbackOffset != null
-                  ? marker.feedbackOffset!.dx
+              (_isDragging && marker.dragOffset != null
+                  ? marker.dragOffset!.dx
                   : marker.offset.dx),
           top: pixelPosition.y +
-              (_isDragging && marker.feedbackOffset != null
-                  ? marker.feedbackOffset!.dy
+              (_isDragging && marker.dragOffset != null
+                  ? marker.dragOffset!.dy
                   : marker.offset.dy),
           child: marker.rotateMarker
               ? Transform.rotate(
