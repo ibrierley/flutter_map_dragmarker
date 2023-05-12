@@ -1,7 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:latlong2/latlong.dart';
 
 class DragMarkers extends StatefulWidget {
   final List<DragMarker> markers;
@@ -24,11 +25,11 @@ class _DragMarkersState extends State<DragMarkers> {
 
     FlutterMapState? mapState = FlutterMapState.maybeOf(context);
 
-    for (var c = 0; c<widget.markers.length; c++) {
+    for (var c = 0; c < widget.markers.length; c++) {
       if (!_boundsContainsMarker(mapState, widget.markers[c])) continue;
 
       dragMarkers.add(DragMarkerWidget(
-        key: widget.markers[c].key ?? ValueKey(c),
+          key: widget.markers[c].key ?? ValueKey(c),
           mapState: mapState,
           marker: widget.markers[c]));
     }
@@ -43,9 +44,10 @@ class _DragMarkersState extends State<DragMarkers> {
     final bottomPortion = marker.height - marker.anchor.top;
     final topPortion = marker.anchor.top;
 
-    final sw =
-    CustomPoint(pxPoint.x + leftPortion - 100, pxPoint.y - bottomPortion + 100);
-    final ne = CustomPoint(pxPoint.x - rightPortion + 100, pxPoint.y + topPortion - 100);
+    final sw = CustomPoint(
+        pxPoint.x + leftPortion - 100, pxPoint.y - bottomPortion + 100);
+    final ne = CustomPoint(
+        pxPoint.x - rightPortion + 100, pxPoint.y + topPortion - 100);
 
     return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
   }
@@ -53,14 +55,12 @@ class _DragMarkersState extends State<DragMarkers> {
 
 class DragMarkerWidget extends StatefulWidget {
   const DragMarkerWidget(
-      {Key? key,
-        this.mapState,
-        required this.marker,
-        AnchorPos? anchorPos})
-  //: anchor = Anchor.forPos(anchorPos, marker.width, marker.height);
+      {Key? key, this.mapState, required this.marker, AnchorPos? anchorPos})
+      //: anchor = Anchor.forPos(anchorPos, marker.width, marker.height);
       : super(key: key);
 
   final FlutterMapState? mapState;
+
   //final Anchor anchor;
   final DragMarker marker;
 
@@ -124,7 +124,10 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
                 ((isDragging) ? marker.feedbackOffset.dy : marker.offset.dy),
             child: widget.marker.rotateMarker
                 ? Transform.rotate(
-                angle: -widget.mapState!.rotationRad, child: displayMarker)
+                    angle: -widget.mapState!.rotationRad,
+                    alignment: widget.marker.rotateAlignment,
+                    child: displayMarker,
+                  )
                 : displayMarker)
       ]),
     );
@@ -150,8 +153,7 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
   void _start(Offset localPosition) {
     isDragging = true;
     dragPosStart = _offsetToCrs(localPosition);
-    markerPointStart =
-        LatLng(markerPoint.latitude, markerPoint.longitude);
+    markerPointStart = LatLng(markerPoint.latitude, markerPoint.longitude);
   }
 
   void onPanStart(DragStartDetails details) {
@@ -178,7 +180,8 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
     var deltaLat = dragPos.latitude - dragPosStart.latitude;
     var deltaLon = dragPos.longitude - dragPosStart.longitude;
 
-    var pixelB = mapState?.getPixelBounds(mapState.zoom);    //getLastPixelBounds();
+    var pixelB =
+        mapState?.getPixelBounds(mapState.zoom); //getLastPixelBounds();
     var pixelPoint = mapState?.project(markerPoint);
 
     /// If we're near an edge, move the map to compensate.
@@ -211,25 +214,27 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
 
         if ((autoDragTimer == null || autoDragTimer?.isActive == false) &&
             (isDragging == true)) {
-          autoDragTimer =
-              Timer.periodic(const Duration(milliseconds: 10), (Timer t) {
-                var tick = autoDragTimer?.tick;
-                bool tickCheck = false;
-                if (tick != null) {
-                  if (tick > lastTick + 15) {
-                    tickCheck = true;
-                  }
+          autoDragTimer = Timer.periodic(
+            const Duration(milliseconds: 10),
+            (Timer t) {
+              var tick = autoDragTimer?.tick;
+              bool tickCheck = false;
+              if (tick != null) {
+                if (tick > lastTick + 15) {
+                  tickCheck = true;
                 }
-                if (isDragging == false || tickCheck) {
-                  autoDragTimer?.cancel();
-                } else {
-                  /// Note, we may have adjusted a few lines up in same drag,
-                  /// so could test for whether we've just done that
-                  /// this, but in reality it seems to work ok as is.
+              }
+              if (isDragging == false || tickCheck) {
+                autoDragTimer?.cancel();
+              } else {
+                /// Note, we may have adjusted a few lines up in same drag,
+                /// so could test for whether we've just done that
+                /// this, but in reality it seems to work ok as is.
 
-                  adjustMapToMarker(widget, autoOffsetX, autoOffsetY);
-                }
-              });
+                adjustMapToMarker(widget, autoOffsetX, autoOffsetY);
+              }
+            },
+          );
         }
       }
     }
@@ -312,8 +317,10 @@ class _DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
-    var localPointCenterDistance =
-    CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    var localPointCenterDistance = CustomPoint(
+      (width / 2) - localPoint.x,
+      (height / 2) - localPoint.y,
+    );
     if (mapState != null) {
       var mapCenter = mapState.project(mapState.center);
       var point = mapCenter - localPointCenterDistance;
@@ -346,6 +353,7 @@ class DragMarker {
   final double nearEdgeSpeed;
   final bool rotateMarker;
   late Anchor anchor;
+  final Alignment rotateAlignment;
 
   DragMarker({
     required this.point,
@@ -369,6 +377,7 @@ class DragMarker {
     this.nearEdgeRatio = 1.5,
     this.nearEdgeSpeed = 1.0,
     this.rotateMarker = true,
+    this.rotateAlignment = Alignment.bottomCenter,
     AnchorPos? anchorPos,
   }) {
     anchor = Anchor.forPos(anchorPos, width, height);
