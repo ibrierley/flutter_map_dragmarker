@@ -22,11 +22,13 @@ class DragMarkerWidget extends StatefulWidget {
 
 class DragMarkerWidgetState extends State<DragMarkerWidget> {
   CustomPoint<double> pixelPosition = const CustomPoint<double>(0.0, 0.0);
-  late LatLng dragPosStart;
-  late LatLng markerPointStart;
-  late LatLng oldDragPosition;
-  bool isDragging = false;
-  Timer? autoDragTimer;
+  late LatLng _dragPosStart;
+  late LatLng _markerPointStart;
+  bool _isDragging = false;
+
+  Timer? _mapScrollTimer;
+  double _scrollMapX = 0;
+  double _scrollMapY = 0;
 
   LatLng get markerPoint => widget.marker.point;
 
@@ -35,7 +37,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final marker = widget.marker;
     _updatePixelPos(markerPoint);
 
-    final displayMarker = marker.builder(context, marker.point, isDragging);
+    final displayMarker = marker.builder(context, marker.point, _isDragging);
 
     return GestureDetector(
       // drag detectors
@@ -61,11 +63,11 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
           width: marker.width,
           height: marker.height,
           left: pixelPosition.x +
-              (isDragging && marker.feedbackOffset != null
+              (_isDragging && marker.feedbackOffset != null
                   ? marker.feedbackOffset!.dx
                   : marker.offset.dx),
           top: pixelPosition.y +
-              (isDragging && marker.feedbackOffset != null
+              (_isDragging && marker.feedbackOffset != null
                   ? marker.feedbackOffset!.dy
                   : marker.offset.dy),
           child: marker.rotateMarker
@@ -95,9 +97,9 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   void _start(Offset localPosition) {
-    isDragging = true;
-    dragPosStart = _offsetToCrs(localPosition);
-    markerPointStart = LatLng(markerPoint.latitude, markerPoint.longitude);
+    _isDragging = true;
+    _dragPosStart = _offsetToCrs(localPosition);
+    _markerPointStart = LatLng(markerPoint.latitude, markerPoint.longitude);
   }
 
   void _onPanStart(DragStartDetails details) {
@@ -120,66 +122,47 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     final dragPos = _offsetToCrs(localPosition);
 
-    final deltaLat = dragPos.latitude - dragPosStart.latitude;
-    final deltaLon = dragPos.longitude - dragPosStart.longitude;
-
-    final pixelB = mapState.getPixelBounds(mapState.zoom);
-    final pixelPoint = mapState.project(markerPoint);
+    final deltaLat = dragPos.latitude - _dragPosStart.latitude;
+    final deltaLon = dragPos.longitude - _dragPosStart.longitude;
 
     // If we're near an edge, move the map to compensate.
-    if (marker.updateMapNearEdge) {
+    if (marker.scrollMapNearEdge) {
+      final pixelB = mapState.getPixelBounds(mapState.zoom);
+      final pixelPoint = mapState.project(markerPoint);
       // How much we'll move the map by to compensate
-      var autoOffsetX = 0.0;
-      var autoOffsetY = 0.0;
-      if (pixelPoint.x + marker.width * marker.nearEdgeRatio >=
+      var scrollMapX = 0.0;
+      if (pixelPoint.x + marker.width * marker.scrollNearEdgeRatio >=
           pixelB.topRight.x) {
-        autoOffsetX = marker.nearEdgeSpeed;
-      } else if (pixelPoint.x - marker.width * marker.nearEdgeRatio <=
+        scrollMapX = marker.scrollNearEdgeSpeed;
+      } else if (pixelPoint.x - marker.width * marker.scrollNearEdgeRatio <=
           pixelB.bottomLeft.x) {
-        autoOffsetX = -marker.nearEdgeSpeed;
+        scrollMapX = -marker.scrollNearEdgeSpeed;
       }
-      if (pixelPoint.y - marker.height * marker.nearEdgeRatio <=
+      var scrollMapY = 0.0;
+      if (pixelPoint.y - marker.height * marker.scrollNearEdgeRatio <=
           pixelB.topRight.y) {
-        autoOffsetY = -marker.nearEdgeSpeed;
-      } else if (pixelPoint.y + marker.height * marker.nearEdgeRatio >=
+        scrollMapY = -marker.scrollNearEdgeSpeed;
+      } else if (pixelPoint.y + marker.height * marker.scrollNearEdgeRatio >=
           pixelB.bottomLeft.y) {
-        autoOffsetY = marker.nearEdgeSpeed;
+        scrollMapY = marker.scrollNearEdgeSpeed;
       }
 
-      // Sometimes when dragging the onDragEnd doesn't fire, so just stops dead.
-      // Here we allow a bit of time to keep dragging whilst user may move
-      // around a bit to keep it going.
-      var lastTick = 0;
-      if (autoDragTimer != null) lastTick = autoDragTimer!.tick;
-
-      if ((autoOffsetY != 0.0) || (autoOffsetX != 0.0)) {
-        adjustMapToMarker(widget, autoOffsetX, autoOffsetY);
-
-        if ((autoDragTimer == null || autoDragTimer?.isActive == false) &&
-            isDragging) {
-          autoDragTimer =
-              Timer.periodic(const Duration(milliseconds: 10), (Timer t) {
-            final tickCheck =
-                autoDragTimer != null && autoDragTimer!.tick > lastTick + 15;
-            if (!isDragging || tickCheck) {
-              // cancel timer
-              autoDragTimer?.cancel();
-              autoDragTimer = null;
-              return;
-            }
-            if (!mounted) return;
-            // Note, we may have adjusted a few lines up in same drag,
-            // so could test for whether we've just done that
-            // this, but in reality it seems to work ok as is.
-            adjustMapToMarker(widget, autoOffsetX, autoOffsetY);
-          });
-        }
+      _scrollMapX = scrollMapX;
+      _scrollMapY = scrollMapY;
+      if (_scrollMapX == 0.0 && _scrollMapY == 0.0) {
+        _mapScrollTimer?.cancel();
+        _mapScrollTimer = null;
+      } else {
+        _mapScrollTimer ??= Timer.periodic(
+          const Duration(milliseconds: 10),
+          _mapScrollTimerCallback,
+        );
       }
     }
 
     setState(() {
-      widget.marker.point = LatLng(markerPointStart.latitude + deltaLat,
-          markerPointStart.longitude + deltaLon);
+      widget.marker.point = LatLng(_markerPointStart.latitude + deltaLat,
+          _markerPointStart.longitude + deltaLon);
       _updatePixelPos(markerPoint);
     });
   }
@@ -201,31 +184,31 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
-  void adjustMapToMarker(DragMarkerWidget widget, autoOffsetX, autoOffsetY) {
-    FlutterMapState? mapState = widget.mapState;
+  void _mapScrollTimerCallback(Timer _) {
+    if (!_isDragging) {
+      _mapScrollTimer?.cancel();
+      _mapScrollTimer = null;
+      return;
+    }
 
+    final mapState = widget.mapState;
     final oldMapPos = mapState.project(mapState.center);
     final oldMarkerPoint = mapState.project(markerPoint);
     final newMapLatLng = mapState.unproject(CustomPoint(
-      oldMapPos.x + autoOffsetX,
-      oldMapPos.y + autoOffsetY,
+      oldMapPos.x + _scrollMapX,
+      oldMapPos.y + _scrollMapY,
     ));
 
     widget.marker.point = mapState.unproject(CustomPoint(
-      oldMarkerPoint.x + autoOffsetX,
-      oldMarkerPoint.y + autoOffsetY,
+      oldMarkerPoint.x + _scrollMapX,
+      oldMarkerPoint.y + _scrollMapY,
     ));
 
     mapState.move(newMapLatLng, mapState.zoom, source: MapEventSource.onDrag);
   }
 
-  void _end() {
-    isDragging = false;
-    if (autoDragTimer != null) autoDragTimer?.cancel();
-  }
-
   void _onPanEnd(details) {
-    _end();
+    _isDragging = false;
     if (widget.marker.onDragEnd != null) {
       widget.marker.onDragEnd!(details, markerPoint);
     }
@@ -233,7 +216,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   void onLongPanEnd(details) {
-    _end();
+    _isDragging = false;
     if (widget.marker.onLongDragEnd != null) {
       widget.marker.onLongDragEnd!(details, markerPoint);
     }

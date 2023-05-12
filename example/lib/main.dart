@@ -52,9 +52,9 @@ class TestAppState extends State<TestApp> {
         onDragEnd: (details, point) => debugPrint("End point $point"),
         onTap: (point) => debugPrint("on tap"),
         onLongPress: (point) => debugPrint("on long press"),
-        updateMapNearEdge: true,
-        nearEdgeRatio: 2.0,
-        nearEdgeSpeed: 1.0,
+        scrollMapNearEdge: true,
+        scrollNearEdgeRatio: 2.0,
+        scrollNearEdgeSpeed: 2.0,
       ),
       // marker with position information
       DragMarker(

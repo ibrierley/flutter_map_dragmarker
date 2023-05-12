@@ -60,15 +60,15 @@ class DragMarker {
 
   /// EXPERIMENTAL, When this flag is enabled the map scrolls around when
   /// dragging a marker near an edge
-  final bool updateMapNearEdge;
+  final bool scrollMapNearEdge;
 
   /// This flag sets the sensitivity of when the map should starts to scroll.
-  /// Requires [updateMapNearEdge] to be set to true.
-  final double nearEdgeRatio;
+  /// Requires [scrollMapNearEdge] to be set to true.
+  final double scrollNearEdgeRatio;
 
   /// This flag sets the scroll speed of the map map when a marker get near to
-  /// an edge. Requires [updateMapNearEdge] to be set to true.
-  final double nearEdgeSpeed;
+  /// an edge. Requires [scrollMapNearEdge] to be set to true.
+  final double scrollNearEdgeSpeed;
 
   /// This option keeps the marker upwards when rotating the map
   final bool rotateMarker;
@@ -93,9 +93,9 @@ class DragMarker {
     this.onLongDragEnd,
     this.onTap,
     this.onLongPress,
-    this.updateMapNearEdge = false, // experimental
-    this.nearEdgeRatio = 1.5,
-    this.nearEdgeSpeed = 1.0,
+    this.scrollMapNearEdge = false,
+    this.scrollNearEdgeRatio = 1.5,
+    this.scrollNearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     AnchorPos? anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
