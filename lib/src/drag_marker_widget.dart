@@ -21,14 +21,14 @@ class DragMarkerWidget extends StatefulWidget {
 }
 
 class DragMarkerWidgetState extends State<DragMarkerWidget> {
-  CustomPoint<double> pixelPosition = const CustomPoint<double>(0.0, 0.0);
+  var pixelPosition = const CustomPoint<double>(0, 0);
   late LatLng _dragPosStart;
   late LatLng _markerPointStart;
   bool _isDragging = false;
 
-  Timer? _mapScrollTimer;
-  double _scrollMapX = 0;
-  double _scrollMapY = 0;
+  /// this marker scrolls the map if [marker.scrollMapNearEdge] is set to true
+  /// and gets dragged near to an edge. It needs to be static because only one
+  static Timer? _mapScrollTimer;
 
   LatLng get markerPoint => widget.marker.point;
 
@@ -49,8 +49,8 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
       onHorizontalDragEnd: marker.useLongPress ? null : _onPanEnd,
       // long press detectors
       onLongPressStart: marker.useLongPress ? _onLongPanStart : null,
-      onLongPressMoveUpdate: marker.useLongPress ? onLongPanUpdate : null,
-      onLongPressEnd: marker.useLongPress ? onLongPanEnd : null,
+      onLongPressMoveUpdate: marker.useLongPress ? _onLongPanUpdate : null,
+      onLongPressEnd: marker.useLongPress ? _onLongPanEnd : null,
       // user callbacks
       onTap: () => marker.onTap?.call(markerPoint),
       onLongPress: () => marker.onLongPress?.call(markerPoint),
@@ -113,42 +113,16 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   void _pan(Offset localPosition) {
-    final marker = widget.marker;
-    final mapState = widget.mapState;
-
     final dragPos = _offsetToCrs(localPosition);
 
     final deltaLat = dragPos.latitude - _dragPosStart.latitude;
     final deltaLon = dragPos.longitude - _dragPosStart.longitude;
 
-    // If we're near an edge, move the map to compensate.
-    if (marker.scrollMapNearEdge) {
-      final pixelB = mapState.getPixelBounds(mapState.zoom);
-      final pixelPoint = mapState.project(markerPoint);
-      // How much we'll move the map by to compensate
-      var scrollMapX = 0.0;
-      if (pixelPoint.x + marker.width * marker.scrollNearEdgeRatio >=
-          pixelB.topRight.x) {
-        scrollMapX = marker.scrollNearEdgeSpeed;
-      } else if (pixelPoint.x - marker.width * marker.scrollNearEdgeRatio <=
-          pixelB.bottomLeft.x) {
-        scrollMapX = -marker.scrollNearEdgeSpeed;
-      }
-      var scrollMapY = 0.0;
-      if (pixelPoint.y - marker.height * marker.scrollNearEdgeRatio <=
-          pixelB.topRight.y) {
-        scrollMapY = -marker.scrollNearEdgeSpeed;
-      } else if (pixelPoint.y + marker.height * marker.scrollNearEdgeRatio >=
-          pixelB.bottomLeft.y) {
-        scrollMapY = marker.scrollNearEdgeSpeed;
-      }
-
-      _scrollMapX = scrollMapX;
-      _scrollMapY = scrollMapY;
-      if (_scrollMapX == 0.0 && _scrollMapY == 0.0) {
-        _mapScrollTimer?.cancel();
-        _mapScrollTimer = null;
-      } else {
+    // If we're near an edge, move the map to compensate
+    if (widget.marker.scrollMapNearEdge) {
+      final scrollOffset = _getMapScrollOffset();
+      // start the scroll timer if scrollOffset is not zero
+      if (scrollOffset != Offset.zero) {
         _mapScrollTimer ??= Timer.periodic(
           const Duration(milliseconds: 10),
           _mapScrollTimerCallback,
@@ -170,33 +144,9 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     widget.marker.onDragUpdate?.call(details, markerPoint);
   }
 
-  void onLongPanUpdate(LongPressMoveUpdateDetails details) {
+  void _onLongPanUpdate(LongPressMoveUpdateDetails details) {
     _pan(details.localPosition);
     widget.marker.onLongDragUpdate?.call(details, markerPoint);
-  }
-
-  /// If dragging near edge of the screen, adjust the map so we keep dragging
-  void _mapScrollTimerCallback(Timer _) {
-    if (!_isDragging) {
-      _mapScrollTimer?.cancel();
-      _mapScrollTimer = null;
-      return;
-    }
-
-    final mapState = widget.mapState;
-    final oldMapPos = mapState.project(mapState.center);
-    final oldMarkerPoint = mapState.project(markerPoint);
-    final newMapLatLng = mapState.unproject(CustomPoint(
-      oldMapPos.x + _scrollMapX,
-      oldMapPos.y + _scrollMapY,
-    ));
-
-    widget.marker.point = mapState.unproject(CustomPoint(
-      oldMarkerPoint.x + _scrollMapX,
-      oldMarkerPoint.y + _scrollMapY,
-    ));
-
-    mapState.move(newMapLatLng, mapState.zoom, source: MapEventSource.onDrag);
   }
 
   void _onPanEnd(details) {
@@ -205,10 +155,38 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     setState(() {}); // Needed if using a feedback widget
   }
 
-  void onLongPanEnd(details) {
+  void _onLongPanEnd(details) {
     _isDragging = false;
     widget.marker.onLongDragEnd?.call(details, markerPoint);
     setState(() {}); // Needed if using a feedback widget
+  }
+
+  /// If dragging near edge of the screen, adjust the map so we keep dragging
+  void _mapScrollTimerCallback(Timer timer) {
+    // cancel conditions
+    if (!_isDragging || timer != _mapScrollTimer) {
+      timer.cancel();
+      _mapScrollTimer = null;
+      return;
+    }
+
+    final mapState = widget.mapState;
+    final scrollOffset = _getMapScrollOffset();
+
+    // update marker position
+    final oldMarkerPoint = mapState.project(markerPoint);
+    widget.marker.point = mapState.unproject(CustomPoint(
+      oldMarkerPoint.x + scrollOffset.dx,
+      oldMarkerPoint.y + scrollOffset.dy,
+    ));
+
+    // scroll map
+    final oldMapPos = mapState.project(mapState.center);
+    final newMapLatLng = mapState.unproject(CustomPoint(
+      oldMapPos.x + scrollOffset.dx,
+      oldMapPos.y + scrollOffset.dy,
+    ));
+    mapState.move(newMapLatLng, mapState.zoom, source: MapEventSource.onDrag);
   }
 
   LatLng _offsetToCrs(Offset offset) {
@@ -225,5 +203,34 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final mapCenter = mapState.project(mapState.center);
     final point = mapCenter - localPointCenterDistance;
     return mapState.unproject(point);
+  }
+
+  /// this method is used for [marker.scrollMapNearEdge]. It checks if the
+  /// marker is near an edge and returns the offset that the map should get
+  /// scrolled.
+  Offset _getMapScrollOffset() {
+    final marker = widget.marker;
+    final mapState = widget.mapState;
+
+    final pixelB = mapState.getPixelBounds(mapState.zoom);
+    final pixelPoint = mapState.project(markerPoint);
+    // How much we'll move the map by to compensate
+    var scrollMapX = 0.0;
+    if (pixelPoint.x + marker.width * marker.scrollNearEdgeRatio >=
+        pixelB.topRight.x) {
+      scrollMapX = marker.scrollNearEdgeSpeed;
+    } else if (pixelPoint.x - marker.width * marker.scrollNearEdgeRatio <=
+        pixelB.bottomLeft.x) {
+      scrollMapX = -marker.scrollNearEdgeSpeed;
+    }
+    var scrollMapY = 0.0;
+    if (pixelPoint.y - marker.height * marker.scrollNearEdgeRatio <=
+        pixelB.topRight.y) {
+      scrollMapY = -marker.scrollNearEdgeSpeed;
+    } else if (pixelPoint.y + marker.height * marker.scrollNearEdgeRatio >=
+        pixelB.bottomLeft.y) {
+      scrollMapY = marker.scrollNearEdgeSpeed;
+    }
+    return Offset(scrollMapX, scrollMapY);
   }
 }
