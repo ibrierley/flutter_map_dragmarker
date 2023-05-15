@@ -91,8 +91,8 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
             map.pixelOrigin;
 
     pixelPosition = CustomPoint<double>(
-      (positionPoint.x - (marker.width - widget.marker.anchor.left)).toDouble(),
-      (positionPoint.y - (marker.height - widget.marker.anchor.top)).toDouble(),
+      (positionPoint.x - (marker.width - marker.anchor.left)).toDouble(),
+      (positionPoint.y - (marker.height - marker.anchor.top)).toDouble(),
     );
   }
 
@@ -104,16 +104,12 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void _onPanStart(DragStartDetails details) {
     _start(details.localPosition);
-    DragMarker marker = widget.marker;
-    if (marker.onDragStart != null) marker.onDragStart!(details, markerPoint);
+    widget.marker.onDragStart?.call(details, markerPoint);
   }
 
   void _onLongPanStart(LongPressStartDetails details) {
     _start(details.localPosition);
-    DragMarker marker = widget.marker;
-    if (marker.onLongDragStart != null) {
-      marker.onLongDragStart!(details, markerPoint);
-    }
+    widget.marker.onLongDragStart?.call(details, markerPoint);
   }
 
   void _pan(Offset localPosition) {
@@ -161,26 +157,22 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     }
 
     setState(() {
-      widget.marker.point = LatLng(_markerPointStart.latitude + deltaLat,
-          _markerPointStart.longitude + deltaLon);
+      widget.marker.point = LatLng(
+        _markerPointStart.latitude + deltaLat,
+        _markerPointStart.longitude + deltaLon,
+      );
       _updatePixelPos(markerPoint);
     });
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
     _pan(details.localPosition);
-    DragMarker marker = widget.marker;
-    if (marker.onDragUpdate != null) {
-      marker.onDragUpdate!(details, markerPoint);
-    }
+    widget.marker.onDragUpdate?.call(details, markerPoint);
   }
 
   void onLongPanUpdate(LongPressMoveUpdateDetails details) {
     _pan(details.localPosition);
-    DragMarker marker = widget.marker;
-    if (marker.onLongDragUpdate != null) {
-      marker.onLongDragUpdate!(details, markerPoint);
-    }
+    widget.marker.onLongDragUpdate?.call(details, markerPoint);
   }
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
@@ -209,17 +201,13 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void _onPanEnd(details) {
     _isDragging = false;
-    if (widget.marker.onDragEnd != null) {
-      widget.marker.onDragEnd!(details, markerPoint);
-    }
+    widget.marker.onDragEnd?.call(details, markerPoint);
     setState(() {}); // Needed if using a feedback widget
   }
 
   void onLongPanEnd(details) {
     _isDragging = false;
-    if (widget.marker.onLongDragEnd != null) {
-      widget.marker.onLongDragEnd!(details, markerPoint);
-    }
+    widget.marker.onLongDragEnd?.call(details, markerPoint);
     setState(() {}); // Needed if using a feedback widget
   }
 
