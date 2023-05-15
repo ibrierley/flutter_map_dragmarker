@@ -115,6 +115,14 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   void _pan(Offset localPosition) {
     final dragPos = _offsetToCrs(localPosition);
 
+    if (widget.mapState.isOutOfBounds(dragPos)) {
+      // cancels the dragging, needed when the app runs in a window and the
+      // cursor leaves the map while dragging. The on pan end event fails to
+      // fire when doing a quick movement
+      _end();
+      return;
+    }
+
     final deltaLat = dragPos.latitude - _dragPosStart.latitude;
     final deltaLon = dragPos.longitude - _dragPosStart.longitude;
 
@@ -150,28 +158,38 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   }
 
   void _onPanEnd(details) {
-    _isDragging = false;
+    _end();
     widget.marker.onDragEnd?.call(details, markerPoint);
-    setState(() {}); // Needed if using a feedback widget
   }
 
   void _onLongPanEnd(details) {
-    _isDragging = false;
+    _end();
     widget.marker.onLongDragEnd?.call(details, markerPoint);
-    setState(() {}); // Needed if using a feedback widget
+  }
+
+  void _end() {
+    // setState is needed if using a different widget while dragging
+    setState(() {
+      _isDragging = false;
+    });
   }
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
   void _mapScrollTimerCallback(Timer timer) {
+    final mapState = widget.mapState;
+    final scrollOffset = _getMapScrollOffset();
+
     // cancel conditions
-    if (!_isDragging || timer != _mapScrollTimer) {
+    if (!_isDragging ||
+        timer != _mapScrollTimer ||
+        scrollOffset == Offset.zero) {
+
       timer.cancel();
       _mapScrollTimer = null;
       return;
     }
 
-    final mapState = widget.mapState;
-    final scrollOffset = _getMapScrollOffset();
+    print('${_mapScrollTimer.hashCode} ${timer.hashCode} $_isDragging');
 
     // update marker position
     final oldMarkerPoint = mapState.project(markerPoint);
