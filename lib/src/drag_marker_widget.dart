@@ -182,14 +182,12 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     // cancel conditions
     if (!_isDragging ||
         timer != _mapScrollTimer ||
-        scrollOffset == Offset.zero) {
-
+        scrollOffset == Offset.zero ||
+        !widget.marker.inMapBounds(mapState)) {
       timer.cancel();
       _mapScrollTimer = null;
       return;
     }
-
-    print('${_mapScrollTimer.hashCode} ${timer.hashCode} $_isDragging');
 
     // update marker position
     final oldMarkerPoint = mapState.project(markerPoint);

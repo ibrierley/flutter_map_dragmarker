@@ -99,6 +99,26 @@ class DragMarker {
     this.rotateMarker = true,
     AnchorPos? anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
+
+  bool inMapBounds(FlutterMapState map) {
+    var pxPoint = map.project(point);
+
+    final rightPortion = width - anchor.left;
+    final leftPortion = anchor.left;
+    final bottomPortion = height - anchor.top;
+    final topPortion = anchor.top;
+
+    final sw = CustomPoint<double>(
+      pxPoint.x + leftPortion - 100,
+      pxPoint.y - bottomPortion + 100,
+    );
+    final ne = CustomPoint<double>(
+      pxPoint.x - rightPortion + 100,
+      pxPoint.y + topPortion - 100,
+    );
+
+    return map.pixelBounds.containsPartialBounds(Bounds<double>(sw, ne));
+  }
 }
 
 typedef DragMarkerWidgetBuilder = Widget Function(

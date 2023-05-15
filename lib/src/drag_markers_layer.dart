@@ -17,7 +17,7 @@ class DragMarkers extends StatelessWidget {
             'a `FlutterMap` context.'));
     return Stack(
       children: markers
-          .where((marker) => _boundsContainsMarker(mapState, marker))
+          .where((marker) => marker.inMapBounds(mapState))
           .map((marker) => DragMarkerWidget(
                 key: marker.key,
                 mapState: mapState,
@@ -25,21 +25,5 @@ class DragMarkers extends StatelessWidget {
               ))
           .toList(growable: false),
     );
-  }
-
-  static bool _boundsContainsMarker(FlutterMapState map, DragMarker marker) {
-    var pxPoint = map.project(marker.point);
-
-    final rightPortion = marker.width - marker.anchor.left;
-    final leftPortion = marker.anchor.left;
-    final bottomPortion = marker.height - marker.anchor.top;
-    final topPortion = marker.anchor.top;
-
-    final sw = CustomPoint<double>(
-        pxPoint.x + leftPortion - 100, pxPoint.y - bottomPortion + 100);
-    final ne = CustomPoint<double>(
-        pxPoint.x - rightPortion + 100, pxPoint.y + topPortion - 100);
-
-    return map.pixelBounds.containsPartialBounds(Bounds<double>(sw, ne));
   }
 }
