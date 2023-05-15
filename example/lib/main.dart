@@ -21,6 +21,7 @@ class TestAppState extends State<TestApp> {
     _dragMarkers = [
       // minimal marker example
       DragMarker(
+        key: GlobalKey<DragMarkerWidgetState>(),
         point: LatLng(45.535, -122.675),
         offset: const Offset(-10, -30),
         builder: (_, __, ___) => const Icon(
@@ -31,6 +32,7 @@ class TestAppState extends State<TestApp> {
       ),
       // marker with drag feedback, map scrolls when near edge
       DragMarker(
+        key: GlobalKey<DragMarkerWidgetState>(),
         point: LatLng(45.2131, -122.6765),
         offset: const Offset(-10, -30),
         dragOffset: const Offset(-15, -45),
@@ -58,6 +60,7 @@ class TestAppState extends State<TestApp> {
       ),
       // marker with position information
       DragMarker(
+        key: GlobalKey<DragMarkerWidgetState>(),
         point: LatLng(45.4131, -122.9765),
         height: 50,
         width: 75,
