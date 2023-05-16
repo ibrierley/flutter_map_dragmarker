@@ -23,7 +23,8 @@ class TestAppState extends State<TestApp> {
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
         point: LatLng(45.535, -122.675),
-        offset: const Offset(-10, -30),
+        size: const Size.square(50),
+        offset: const Offset(0, -20),
         builder: (_, __, ___) => const Icon(
           Icons.location_on,
           size: 50,
@@ -34,8 +35,9 @@ class TestAppState extends State<TestApp> {
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
         point: LatLng(45.2131, -122.6765),
-        offset: const Offset(-10, -30),
-        dragOffset: const Offset(-15, -45),
+        size: const Size.square(50),
+        offset: const Offset(0, -20),
+        dragOffset: const Offset(-10, -45),
         builder: (_, __, isDragging) {
           if (isDragging) {
             return const Icon(
@@ -62,8 +64,7 @@ class TestAppState extends State<TestApp> {
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
         point: LatLng(45.4131, -122.9765),
-        height: 50,
-        width: 75,
+        size: const Size(75, 50),
         builder: (_, pos, ___) {
           return Card(
             color: Colors.blueGrey,

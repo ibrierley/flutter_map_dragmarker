@@ -13,11 +13,8 @@ class DragMarker {
   /// The widget of the marker
   final DragMarkerWidgetBuilder builder;
 
-  /// The width of the marker widget
-  final double width;
-
-  /// The height of the marker widget
-  final double height;
+  /// The height and width of the marker widget
+  final Size size;
 
   /// The position offset of the marker
   final Offset offset;
@@ -80,8 +77,7 @@ class DragMarker {
     required this.point,
     this.key,
     required this.builder,
-    this.width = 30.0,
-    this.height = 30.0,
+    required this.size,
     this.offset = const Offset(0, 0),
     this.dragOffset,
     this.useLongPress = false,
@@ -98,14 +94,14 @@ class DragMarker {
     this.scrollNearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     AnchorPos? anchorPos,
-  }) : anchor = Anchor.forPos(anchorPos, width, height);
+  }) : anchor = Anchor.forPos(anchorPos, size.width, size.height);
 
   bool inMapBounds(FlutterMapState map) {
     var pxPoint = map.project(point);
 
-    final rightPortion = width - anchor.left;
+    final rightPortion = size.width - anchor.left;
     final leftPortion = anchor.left;
-    final bottomPortion = height - anchor.top;
+    final bottomPortion = size.height - anchor.top;
     final topPortion = anchor.top;
 
     final sw = CustomPoint<double>(

@@ -60,8 +60,8 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
           of Stack widgets in the future. */
       child: Stack(children: [
         Positioned(
-          width: marker.width,
-          height: marker.height,
+          width: marker.size.width,
+          height: marker.size.height,
           left: pixelPosition.x +
               (_isDragging && marker.dragOffset != null
                   ? marker.dragOffset!.dx
@@ -91,8 +91,8 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
             map.pixelOrigin;
 
     pixelPosition = CustomPoint<double>(
-      (positionPoint.x - (marker.width - marker.anchor.left)).toDouble(),
-      (positionPoint.y - (marker.height - marker.anchor.top)).toDouble(),
+      (positionPoint.x - (marker.size.width - marker.anchor.left)).toDouble(),
+      (positionPoint.y - (marker.size.height - marker.anchor.top)).toDouble(),
     );
   }
 
@@ -232,18 +232,18 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final pixelPoint = mapState.project(markerPoint);
     // How much we'll move the map by to compensate
     var scrollMapX = 0.0;
-    if (pixelPoint.x + marker.width * marker.scrollNearEdgeRatio >=
+    if (pixelPoint.x + marker.size.width * marker.scrollNearEdgeRatio >=
         pixelB.topRight.x) {
       scrollMapX = marker.scrollNearEdgeSpeed;
-    } else if (pixelPoint.x - marker.width * marker.scrollNearEdgeRatio <=
+    } else if (pixelPoint.x - marker.size.width * marker.scrollNearEdgeRatio <=
         pixelB.bottomLeft.x) {
       scrollMapX = -marker.scrollNearEdgeSpeed;
     }
     var scrollMapY = 0.0;
-    if (pixelPoint.y - marker.height * marker.scrollNearEdgeRatio <=
+    if (pixelPoint.y - marker.size.height * marker.scrollNearEdgeRatio <=
         pixelB.topRight.y) {
       scrollMapY = -marker.scrollNearEdgeSpeed;
-    } else if (pixelPoint.y + marker.height * marker.scrollNearEdgeRatio >=
+    } else if (pixelPoint.y + marker.size.height * marker.scrollNearEdgeRatio >=
         pixelB.bottomLeft.y) {
       scrollMapY = marker.scrollNearEdgeSpeed;
     }
