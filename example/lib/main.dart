@@ -35,9 +35,9 @@ class TestAppState extends State<TestApp> {
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
         point: LatLng(45.2131, -122.6765),
-        size: const Size.square(50),
+        size: const Size.square(75),
         offset: const Offset(0, -20),
-        dragOffset: const Offset(-10, -45),
+        dragOffset: const Offset(0, -35),
         builder: (_, __, isDragging) {
           if (isDragging) {
             return const Icon(
