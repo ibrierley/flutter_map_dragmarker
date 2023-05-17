@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_dragmarker/dragmarker.dart';
+import 'package:flutter_map_dragmarker/flutter_map_dragmarker.dart';
 import 'package:latlong2/latlong.dart';
 
-void main() {
-  runApp(const TestApp());
-}
+void main() => runApp(const TestApp());
 
 class TestApp extends StatefulWidget {
   const TestApp({super.key});
@@ -16,60 +14,93 @@ class TestApp extends StatefulWidget {
 }
 
 class TestAppState extends State<TestApp> {
+  late final List<DragMarker> _dragMarkers;
+
+  @override
+  void initState() {
+    _dragMarkers = [
+      // minimal marker example
+      DragMarker(
+        key: GlobalKey<DragMarkerWidgetState>(),
+        point: LatLng(45.535, -122.675),
+        size: const Size.square(50),
+        offset: const Offset(0, -20),
+        builder: (_, __, ___) => const Icon(
+          Icons.location_on,
+          size: 50,
+          color: Colors.blueGrey,
+        ),
+      ),
+      // marker with drag feedback, map scrolls when near edge
+      DragMarker(
+        key: GlobalKey<DragMarkerWidgetState>(),
+        point: LatLng(45.2131, -122.6765),
+        size: const Size.square(75),
+        offset: const Offset(0, -20),
+        dragOffset: const Offset(0, -35),
+        builder: (_, __, isDragging) {
+          if (isDragging) {
+            return const Icon(
+              Icons.edit_location,
+              size: 75,
+              color: Colors.blueGrey,
+            );
+          }
+          return const Icon(
+            Icons.location_on,
+            size: 50,
+            color: Colors.blueGrey,
+          );
+        },
+        onDragStart: (details, point) => debugPrint("Start point $point"),
+        onDragEnd: (details, point) => debugPrint("End point $point"),
+        onTap: (point) => debugPrint("on tap"),
+        onLongPress: (point) => debugPrint("on long press"),
+        scrollMapNearEdge: true,
+        scrollNearEdgeRatio: 2.0,
+        scrollNearEdgeSpeed: 2.0,
+      ),
+      // marker with position information
+      DragMarker(
+        key: GlobalKey<DragMarkerWidgetState>(),
+        point: LatLng(45.4131, -122.9765),
+        size: const Size(75, 50),
+        builder: (_, pos, ___) {
+          return Card(
+            color: Colors.blueGrey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  pos.latitude.toStringAsFixed(3),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                Text(
+                  pos.longitude.toStringAsFixed(3),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    ];
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         body: Center(
           child: FlutterMap(
-            options: MapOptions(
-              center: LatLng(45.5231, -122.6765),
-              zoom: 6.4,
-            ),
+            options: MapOptions(center: LatLng(45.5231, -122.6765), zoom: 9),
             children: [
               TileLayer(
-                urlTemplate:
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c'],
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
-              DragMarkers(
-                markers: [
-                  DragMarker(
-                    point: LatLng(45.2131, -122.6765),
-                    width: 80.0,
-                    height: 80.0,
-                    offset: const Offset(0.0, -8.0),
-                    builder: (ctx) => const Icon(Icons.location_on, size: 50),
-                    onDragStart: (details, point) =>
-                        debugPrint("Start point $point"),
-                    onDragEnd: (details, point) =>
-                        debugPrint("End point $point"),
-                    onDragUpdate: (details, point) {},
-                    onTap: (point) {
-                      debugPrint("on tap");
-                    },
-                    onLongPress: (point) {
-                      debugPrint("on long press");
-                    },
-                    feedbackBuilder: (ctx) =>
-                        const Icon(Icons.edit_location, size: 75),
-                    feedbackOffset: const Offset(0.0, -18.0),
-                    updateMapNearEdge: true,
-                    nearEdgeRatio: 2.0,
-                    nearEdgeSpeed: 1.0,
-                  ),
-                  DragMarker(
-                    point: LatLng(45.535, -122.675),
-                    width: 80.0,
-                    height: 80.0,
-                    builder: (ctx) => const Icon(Icons.location_on, size: 50),
-                    onDragEnd: (details, point) {
-                      debugPrint('Finished Drag $details $point');
-                    },
-                    updateMapNearEdge: false,
-                  )
-                ],
-              ),
+              DragMarkers(markers: _dragMarkers),
             ],
           ),
         ),
