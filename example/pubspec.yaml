@@ -28,7 +28,7 @@ dependencies:
 
   flutter_map_dragmarker:
     path: ../
-  latlong2: 0.8.0
+  latlong2: ">=0.8.0 <0.10.0"
 
 
   # The following adds the Cupertino Icons font to your application.
