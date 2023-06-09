@@ -94,7 +94,11 @@ class DragMarker {
     this.scrollNearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     AnchorPos? anchorPos,
-  }) : anchor = Anchor.forPos(anchorPos, size.width, size.height);
+  }) : anchor = Anchor.fromPos(
+    anchorPos ?? AnchorPos.align(AnchorAlign.center),
+    size.width,
+    size.height,
+  );
 
   bool inMapBounds(FlutterMapState map) {
     var pxPoint = map.project(point);
