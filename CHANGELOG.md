@@ -1,3 +1,6 @@
+[5.0.0]
+Update for Flutter_map v5.0.0
+
 [4.1.3]
 Update for Flutter_map v4.0.0
 
