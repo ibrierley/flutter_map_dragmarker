@@ -87,7 +87,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     var positionPoint = map.project(point);
     positionPoint =
-        positionPoint.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+        (positionPoint * map.getZoomScale(map.zoom, map.zoom)) -
             map.pixelOrigin;
 
     pixelPosition = CustomPoint<double>(

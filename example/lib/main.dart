@@ -22,7 +22,7 @@ class TestAppState extends State<TestApp> {
       // minimal marker example
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
-        point: LatLng(45.535, -122.675),
+        point: const LatLng(45.535, -122.675),
         size: const Size.square(50),
         offset: const Offset(0, -20),
         builder: (_, __, ___) => const Icon(
@@ -34,7 +34,7 @@ class TestAppState extends State<TestApp> {
       // marker with drag feedback, map scrolls when near edge
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
-        point: LatLng(45.2131, -122.6765),
+        point: const LatLng(45.2131, -122.6765),
         size: const Size.square(75),
         offset: const Offset(0, -20),
         dragOffset: const Offset(0, -35),
@@ -63,7 +63,7 @@ class TestAppState extends State<TestApp> {
       // marker with position information
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
-        point: LatLng(45.4131, -122.9765),
+        point: const LatLng(45.4131, -122.9765),
         size: const Size(75, 50),
         builder: (_, pos, ___) {
           return Card(
@@ -95,7 +95,7 @@ class TestAppState extends State<TestApp> {
       home: Scaffold(
         body: Center(
           child: FlutterMap(
-            options: MapOptions(center: LatLng(45.5231, -122.6765), zoom: 9),
+            options: MapOptions(center: const LatLng(45.5231, -122.6765), zoom: 9),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
