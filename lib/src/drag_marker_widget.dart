@@ -90,6 +90,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
                       angle: -widget.mapCamera.rotationRad,
                       alignment: (marker.alignment ?? widget.alignment) * -1,
                       child: displayMarker,
+                      origin: marker.rotateOrigin,
                     )
                   : displayMarker,
             )

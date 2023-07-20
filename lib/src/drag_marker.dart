@@ -80,6 +80,9 @@ class DragMarker {
   /// The center of rotation (anchor) will be opposite this.
   final Alignment? alignment;
 
+  /// The offset for rotating the marker
+  final Offset? rotateOrigin;
+
   DragMarker({
     required this.point,
     this.key,
@@ -101,6 +104,7 @@ class DragMarker {
     this.scrollNearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     this.alignment,
+    this.rotateOrigin,
   });
 
   /// This method checks if the marker is in the current map bounds
