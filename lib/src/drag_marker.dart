@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
@@ -95,29 +97,29 @@ class DragMarker {
     this.rotateMarker = true,
     AnchorPos? anchorPos,
   }) : anchor = Anchor.fromPos(
-    anchorPos ?? AnchorPos.align(AnchorAlign.center),
-    size.width,
-    size.height,
-  );
+          anchorPos ?? const AnchorPos.align(AnchorAlign.center),
+          size.width,
+          size.height,
+        );
 
-  bool inMapBounds(FlutterMapState map) {
-    var pxPoint = map.project(point);
+  bool inMapBounds(MapCamera mapCamera) {
+    var pxPoint = mapCamera.project(point);
 
     final rightPortion = size.width - anchor.left;
     final leftPortion = anchor.left;
     final bottomPortion = size.height - anchor.top;
     final topPortion = anchor.top;
 
-    final sw = CustomPoint<double>(
+    final sw = Point<double>(
       pxPoint.x + leftPortion - 100,
       pxPoint.y - bottomPortion + 100,
     );
-    final ne = CustomPoint<double>(
+    final ne = Point<double>(
       pxPoint.x - rightPortion + 100,
       pxPoint.y + topPortion - 100,
     );
 
-    return map.pixelBounds.containsPartialBounds(Bounds<double>(sw, ne));
+    return mapCamera.pixelBounds.containsPartialBounds(Bounds<double>(sw, ne));
   }
 }
 
