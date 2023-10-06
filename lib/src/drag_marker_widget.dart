@@ -10,11 +10,13 @@ import 'drag_marker.dart';
 class DragMarkerWidget extends StatefulWidget {
   const DragMarkerWidget({
     super.key,
-    required this.mapController,
     required this.marker,
+    required this.mapCamera,
+    required this.mapController,
   });
 
   final MapController mapController;
+  final MapCamera mapCamera;
   final DragMarker marker;
 
   @override
@@ -73,7 +75,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
                   : marker.offset.dy),
           child: marker.rotateMarker
               ? Transform.rotate(
-                  angle: -widget.mapController.camera.rotationRad,
+                  angle: -widget.mapCamera.rotationRad,
                   child: displayMarker,
                 )
               : displayMarker,
@@ -84,7 +86,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void _updatePixelPos(point) {
     final marker = widget.marker;
-    final map = widget.mapController.camera;
+    final map = widget.mapCamera;
 
     var positionPoint = map.project(point);
     positionPoint = (positionPoint * map.getZoomScale(map.zoom, map.zoom)) -
@@ -170,7 +172,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
   void _mapScrollTimerCallback(Timer timer) {
-    final mapState = widget.mapController.camera;
+    final mapState = widget.mapCamera;
     final scrollOffset = _getMapScrollOffset();
 
     // cancel conditions
@@ -204,7 +206,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final renderObject = context.findRenderObject() as RenderBox;
     final width = renderObject.size.width;
     final height = renderObject.size.height;
-    final mapState = widget.mapController.camera;
+    final mapState = widget.mapCamera;
 
     // convert the point to global coordinates
     final localPoint = Point<double>(offset.dx, offset.dy);
@@ -220,9 +222,9 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   /// scrolled.
   Offset _getMapScrollOffset() {
     final marker = widget.marker;
-    final mapState = widget.mapController.camera;
+    final mapState = widget.mapCamera;
 
-    final pixelB = widget.mapController.camera.pixelBounds;
+    final pixelB = widget.mapCamera.pixelBounds;
     final pixelPoint = mapState.project(markerPoint);
     // How much we'll move the map by to compensate
     var scrollMapX = 0.0;
