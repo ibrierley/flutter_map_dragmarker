@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_dragmarker/src/drag_anchor.dart';
 import 'package:latlong2/latlong.dart';
 
 /// The data class has all information that is required for the DragMarkerWidget
@@ -73,7 +74,7 @@ class DragMarker {
   final bool rotateMarker;
 
   /// The anchor point of the marker, gets set by the anchorPos parameter
-  final Anchor anchor;
+  final DragAnchor anchor;
 
   DragMarker({
     required this.point,
@@ -95,9 +96,9 @@ class DragMarker {
     this.scrollNearEdgeRatio = 1.5,
     this.scrollNearEdgeSpeed = 1.0,
     this.rotateMarker = true,
-    AnchorPos? anchorPos,
-  }) : anchor = Anchor.fromPos(
-          anchorPos ?? const AnchorPos.align(AnchorAlign.center),
+    DragAnchorPos? anchorPos,
+  }) : anchor = DragAnchor.fromPos(
+          anchorPos ?? const DragAnchorPos.align(DragAnchorAlign.center),
           size.width,
           size.height,
         );

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'drag_marker.dart';
@@ -116,8 +116,6 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void _pan(Offset localPosition) {
     final dragPos = _offsetToCrs(localPosition);
-
-    // TODO: Please check if the bounds are correct or not before proceeding
 
     final deltaLat = dragPos.latitude - _dragPosStart.latitude;
     final deltaLon = dragPos.longitude - _dragPosStart.longitude;
