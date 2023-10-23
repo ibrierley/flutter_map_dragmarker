@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -9,11 +10,13 @@ import 'drag_marker.dart';
 class DragMarkerWidget extends StatefulWidget {
   const DragMarkerWidget({
     super.key,
-    required this.mapState,
     required this.marker,
+    required this.mapCamera,
+    required this.mapController,
   });
 
-  final FlutterMapState mapState;
+  final MapController mapController;
+  final MapCamera mapCamera;
   final DragMarker marker;
 
   @override
@@ -21,7 +24,7 @@ class DragMarkerWidget extends StatefulWidget {
 }
 
 class DragMarkerWidgetState extends State<DragMarkerWidget> {
-  var pixelPosition = const CustomPoint<double>(0, 0);
+  var pixelPosition = const Point<double>(0, 0);
   late LatLng _dragPosStart;
   late LatLng _markerPointStart;
   bool _isDragging = false;
@@ -72,7 +75,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
                   : marker.offset.dy),
           child: marker.rotateMarker
               ? Transform.rotate(
-                  angle: -widget.mapState.rotationRad,
+                  angle: -widget.mapCamera.rotationRad,
                   child: displayMarker,
                 )
               : displayMarker,
@@ -83,14 +86,13 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void _updatePixelPos(point) {
     final marker = widget.marker;
-    final map = widget.mapState;
+    final map = widget.mapCamera;
 
     var positionPoint = map.project(point);
-    positionPoint =
-        (positionPoint * map.getZoomScale(map.zoom, map.zoom)) -
-            map.pixelOrigin;
+    positionPoint = (positionPoint * map.getZoomScale(map.zoom, map.zoom)) -
+        map.pixelOrigin.toDoublePoint();
 
-    pixelPosition = CustomPoint<double>(
+    pixelPosition = Point<double>(
       (positionPoint.x - (marker.size.width - marker.anchor.left)).toDouble(),
       (positionPoint.y - (marker.size.height - marker.anchor.top)).toDouble(),
     );
@@ -115,13 +117,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   void _pan(Offset localPosition) {
     final dragPos = _offsetToCrs(localPosition);
 
-    if (widget.mapState.isOutOfBounds(dragPos)) {
-      // cancels the dragging, needed when the app runs in a window and the
-      // cursor leaves the map while dragging. The on pan end event fails to
-      // fire when doing a quick movement
-      _end();
-      return;
-    }
+    // TODO: Please check if the bounds are correct or not before proceeding
 
     final deltaLat = dragPos.latitude - _dragPosStart.latitude;
     final deltaLon = dragPos.longitude - _dragPosStart.longitude;
@@ -176,7 +172,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
   void _mapScrollTimerCallback(Timer timer) {
-    final mapState = widget.mapState;
+    final mapState = widget.mapCamera;
     final scrollOffset = _getMapScrollOffset();
 
     // cancel conditions
@@ -191,18 +187,18 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     // update marker position
     final oldMarkerPoint = mapState.project(markerPoint);
-    widget.marker.point = mapState.unproject(CustomPoint(
+    widget.marker.point = mapState.unproject(Point(
       oldMarkerPoint.x + scrollOffset.dx,
       oldMarkerPoint.y + scrollOffset.dy,
     ));
 
     // scroll map
     final oldMapPos = mapState.project(mapState.center);
-    final newMapLatLng = mapState.unproject(CustomPoint(
+    final newMapLatLng = mapState.unproject(Point(
       oldMapPos.x + scrollOffset.dx,
       oldMapPos.y + scrollOffset.dy,
     ));
-    mapState.move(newMapLatLng, mapState.zoom, source: MapEventSource.onDrag);
+    widget.mapController.move(newMapLatLng, mapState.zoom);
   }
 
   LatLng _offsetToCrs(Offset offset) {
@@ -210,12 +206,12 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final renderObject = context.findRenderObject() as RenderBox;
     final width = renderObject.size.width;
     final height = renderObject.size.height;
-    final mapState = widget.mapState;
+    final mapState = widget.mapCamera;
 
     // convert the point to global coordinates
-    final localPoint = CustomPoint<double>(offset.dx, offset.dy);
-    final localPointCenterDistance = CustomPoint<double>(
-        (width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    final localPoint = Point<double>(offset.dx, offset.dy);
+    final localPointCenterDistance =
+        Point<double>((width / 2) - localPoint.x, (height / 2) - localPoint.y);
     final mapCenter = mapState.project(mapState.center);
     final point = mapCenter - localPointCenterDistance;
     return mapState.unproject(point);
@@ -226,9 +222,9 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   /// scrolled.
   Offset _getMapScrollOffset() {
     final marker = widget.marker;
-    final mapState = widget.mapState;
+    final mapState = widget.mapCamera;
 
-    final pixelB = mapState.getPixelBounds(mapState.zoom);
+    final pixelB = widget.mapCamera.pixelBounds;
     final pixelPoint = mapState.project(markerPoint);
     // How much we'll move the map by to compensate
     var scrollMapX = 0.0;
