@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_dragmarker/flutter_map_dragmarker.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -95,12 +94,18 @@ class TestAppState extends State<TestApp> {
       home: Scaffold(
         body: Center(
           child: FlutterMap(
-            options: MapOptions(center: const LatLng(45.5231, -122.6765), zoom: 9),
+            options: const MapOptions(
+              initialCenter: LatLng(45.5231, -122.6765),
+              initialZoom: 9,
+            ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
-              DragMarkers(markers: _dragMarkers),
+              DragMarkers(
+                markers: _dragMarkers,
+                alignment: Alignment.topCenter,
+              ),
             ],
           ),
         ),
