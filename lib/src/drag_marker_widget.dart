@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'drag_marker.dart';
@@ -9,19 +10,37 @@ import 'drag_marker.dart';
 class DragMarkerWidget extends StatefulWidget {
   const DragMarkerWidget({
     super.key,
-    required this.mapState,
     required this.marker,
+    required this.mapCamera,
+    required this.mapController,
+    this.alignment = Alignment.center,
   });
 
-  final FlutterMapState mapState;
+  /// The marker that is to be displayed on the map.
   final DragMarker marker;
+
+  /// The controller of the map that is used to move the map on pan events.
+  final MapController mapController;
+
+  /// The camera of the map that provides the current map state.
+  final MapCamera mapCamera;
+
+  /// Alignment of each marker relative to its normal center at [DragMarker.point].
+  ///
+  /// For example, [Alignment.topCenter] will mean the entire marker widget is
+  /// located above the [DragMarker.point].
+  ///
+  /// The center of rotation (anchor) will be opposite this.
+  ///
+  /// Defaults to [Alignment.center]. Overriden by [DragMarker.alignment] if set.
+  final Alignment alignment;
 
   @override
   State<DragMarkerWidget> createState() => DragMarkerWidgetState();
 }
 
 class DragMarkerWidgetState extends State<DragMarkerWidget> {
-  var pixelPosition = const CustomPoint<double>(0, 0);
+  var pixelPosition = const Point<double>(0, 0);
   late LatLng _dragPosStart;
   late LatLng _markerPointStart;
   bool _isDragging = false;
@@ -39,61 +58,64 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     final displayMarker = marker.builder(context, marker.point, _isDragging);
 
-    return GestureDetector(
-      // drag detectors
-      onVerticalDragStart: marker.useLongPress ? null : _onPanStart,
-      onVerticalDragUpdate: marker.useLongPress ? null : _onPanUpdate,
-      onVerticalDragEnd: marker.useLongPress ? null : _onPanEnd,
-      onHorizontalDragStart: marker.useLongPress ? null : _onPanStart,
-      onHorizontalDragUpdate: marker.useLongPress ? null : _onPanUpdate,
-      onHorizontalDragEnd: marker.useLongPress ? null : _onPanEnd,
-      // long press detectors
-      onLongPressStart: marker.useLongPress ? _onLongPanStart : null,
-      onLongPressMoveUpdate: marker.useLongPress ? _onLongPanUpdate : null,
-      onLongPressEnd: marker.useLongPress ? _onLongPanEnd : null,
-      // user callbacks
-      onTap: () => marker.onTap?.call(markerPoint),
-      onLongPress: () => marker.onLongPress?.call(markerPoint),
-      // child widget
-      /* using Stack while the layer widget MarkerWidgets already
-          introduces a Stack to the widget tree, try to use decrease the amount
-          of Stack widgets in the future. */
-      child: Stack(children: [
-        Positioned(
-          width: marker.size.width,
-          height: marker.size.height,
-          left: pixelPosition.x +
-              (_isDragging && marker.dragOffset != null
-                  ? marker.dragOffset!.dx
-                  : marker.offset.dx),
-          top: pixelPosition.y +
-              (_isDragging && marker.dragOffset != null
-                  ? marker.dragOffset!.dy
-                  : marker.offset.dy),
-          child: marker.rotateMarker
-              ? Transform.rotate(
-                  angle: -widget.mapState.rotationRad,
-                  child: displayMarker,
-                )
-              : displayMarker,
-        )
-      ]),
+    return MobileLayerTransformer(
+      child: GestureDetector(
+        // drag detectors
+        onVerticalDragStart: marker.useLongPress ? null : _onPanStart,
+        onVerticalDragUpdate: marker.useLongPress ? null : _onPanUpdate,
+        onVerticalDragEnd: marker.useLongPress ? null : _onPanEnd,
+        onHorizontalDragStart: marker.useLongPress ? null : _onPanStart,
+        onHorizontalDragUpdate: marker.useLongPress ? null : _onPanUpdate,
+        onHorizontalDragEnd: marker.useLongPress ? null : _onPanEnd,
+        // long press detectors
+        onLongPressStart: marker.useLongPress ? _onLongPanStart : null,
+        onLongPressMoveUpdate: marker.useLongPress ? _onLongPanUpdate : null,
+        onLongPressEnd: marker.useLongPress ? _onLongPanEnd : null,
+        // user callbacks
+        onTap: () => marker.onTap?.call(markerPoint),
+        onLongPress: () => marker.onLongPress?.call(markerPoint),
+        // child widget
+        /* using Stack while the layer widget MarkerWidgets already
+            introduces a Stack to the widget tree, try to use decrease the amount
+            of Stack widgets in the future. */
+        child: Stack(
+          children: [
+            Positioned(
+              width: marker.size.width,
+              height: marker.size.height,
+              left: pixelPosition.x,
+              top: pixelPosition.y,
+              child: marker.rotateMarker
+                  ? Transform.rotate(
+                      angle: -widget.mapCamera.rotationRad,
+                      alignment: (marker.alignment ?? widget.alignment) * -1,
+                      child: displayMarker,
+                    )
+                  : displayMarker,
+            )
+          ],
+        ),
+      ),
     );
   }
 
   void _updatePixelPos(point) {
     final marker = widget.marker;
-    final map = widget.mapState;
+    final map = widget.mapCamera;
 
-    var positionPoint = map.project(point);
-    positionPoint =
-        (positionPoint * map.getZoomScale(map.zoom, map.zoom)) -
-            map.pixelOrigin;
+    final pxPoint = map.project(point);
 
-    pixelPosition = CustomPoint<double>(
-      (positionPoint.x - (marker.size.width - marker.anchor.left)).toDouble(),
-      (positionPoint.y - (marker.size.height - marker.anchor.top)).toDouble(),
-    );
+    final left = 0.5 *
+        marker.size.width *
+        ((marker.alignment ?? widget.alignment).x + 1);
+    final top = 0.5 *
+        marker.size.height *
+        ((marker.alignment ?? widget.alignment).y + 1);
+    final right = marker.size.width - left;
+    final bottom = marker.size.height - top;
+
+    final pos = pxPoint.subtract(map.pixelOrigin.toDoublePoint());
+    pixelPosition = Point(pos.x - right, pos.y - bottom);
   }
 
   void _start(Offset localPosition) {
@@ -114,14 +136,6 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   void _pan(Offset localPosition) {
     final dragPos = _offsetToCrs(localPosition);
-
-    if (widget.mapState.isOutOfBounds(dragPos)) {
-      // cancels the dragging, needed when the app runs in a window and the
-      // cursor leaves the map while dragging. The on pan end event fails to
-      // fire when doing a quick movement
-      _end();
-      return;
-    }
 
     final deltaLat = dragPos.latitude - _dragPosStart.latitude;
     final deltaLon = dragPos.longitude - _dragPosStart.longitude;
@@ -176,14 +190,17 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
   /// If dragging near edge of the screen, adjust the map so we keep dragging
   void _mapScrollTimerCallback(Timer timer) {
-    final mapState = widget.mapState;
+    final mapState = widget.mapCamera;
     final scrollOffset = _getMapScrollOffset();
 
     // cancel conditions
     if (!_isDragging ||
         timer != _mapScrollTimer ||
         scrollOffset == Offset.zero ||
-        !widget.marker.inMapBounds(mapState)) {
+        !widget.marker.inMapBounds(
+          mapCamera: mapState,
+          markerWidgetAlignment: widget.alignment,
+        )) {
       timer.cancel();
       _mapScrollTimer = null;
       return;
@@ -191,18 +208,18 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     // update marker position
     final oldMarkerPoint = mapState.project(markerPoint);
-    widget.marker.point = mapState.unproject(CustomPoint(
+    widget.marker.point = mapState.unproject(Point(
       oldMarkerPoint.x + scrollOffset.dx,
       oldMarkerPoint.y + scrollOffset.dy,
     ));
 
     // scroll map
     final oldMapPos = mapState.project(mapState.center);
-    final newMapLatLng = mapState.unproject(CustomPoint(
+    final newMapLatLng = mapState.unproject(Point(
       oldMapPos.x + scrollOffset.dx,
       oldMapPos.y + scrollOffset.dy,
     ));
-    mapState.move(newMapLatLng, mapState.zoom, source: MapEventSource.onDrag);
+    widget.mapController.move(newMapLatLng, mapState.zoom);
   }
 
   LatLng _offsetToCrs(Offset offset) {
@@ -210,12 +227,12 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final renderObject = context.findRenderObject() as RenderBox;
     final width = renderObject.size.width;
     final height = renderObject.size.height;
-    final mapState = widget.mapState;
+    final mapState = widget.mapCamera;
 
     // convert the point to global coordinates
-    final localPoint = CustomPoint<double>(offset.dx, offset.dy);
-    final localPointCenterDistance = CustomPoint<double>(
-        (width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    final localPoint = Point<double>(offset.dx, offset.dy);
+    final localPointCenterDistance =
+        Point<double>((width / 2) - localPoint.x, (height / 2) - localPoint.y);
     final mapCenter = mapState.project(mapState.center);
     final point = mapCenter - localPointCenterDistance;
     return mapState.unproject(point);
@@ -226,9 +243,9 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
   /// scrolled.
   Offset _getMapScrollOffset() {
     final marker = widget.marker;
-    final mapState = widget.mapState;
+    final mapState = widget.mapCamera;
 
-    final pixelB = mapState.getPixelBounds(mapState.zoom);
+    final pixelB = widget.mapCamera.pixelBounds;
     final pixelPoint = mapState.project(markerPoint);
     // How much we'll move the map by to compensate
     var scrollMapX = 0.0;

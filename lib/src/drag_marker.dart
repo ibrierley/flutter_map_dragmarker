@@ -1,5 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 /// The data class has all information that is required for the DragMarkerWidget
@@ -70,8 +72,13 @@ class DragMarker {
   /// This option keeps the marker upwards when rotating the map
   final bool rotateMarker;
 
-  /// The anchor point of the marker, gets set by the anchorPos parameter
-  final Anchor anchor;
+  /// Alignment of the marker relative to the normal center at [point]
+  ///
+  /// For example, [Alignment.topCenter] will mean the entire marker widget is
+  /// located above the [point].
+  ///
+  /// The center of rotation (anchor) will be opposite this.
+  final Alignment? alignment;
 
   DragMarker({
     required this.point,
@@ -93,31 +100,29 @@ class DragMarker {
     this.scrollNearEdgeRatio = 1.5,
     this.scrollNearEdgeSpeed = 1.0,
     this.rotateMarker = true,
-    AnchorPos? anchorPos,
-  }) : anchor = Anchor.fromPos(
-    anchorPos ?? AnchorPos.align(AnchorAlign.center),
-    size.width,
-    size.height,
-  );
+    this.alignment,
+  });
 
-  bool inMapBounds(FlutterMapState map) {
-    var pxPoint = map.project(point);
+  /// This method checks if the marker is in the current map bounds
+  bool inMapBounds({
+    required final MapCamera mapCamera,
+    required final Alignment markerWidgetAlignment,
+  }) {
+    var pxPoint = mapCamera.project(point);
 
-    final rightPortion = size.width - anchor.left;
-    final leftPortion = anchor.left;
-    final bottomPortion = size.height - anchor.top;
-    final topPortion = anchor.top;
+    final left =
+        0.5 * size.width * ((alignment ?? markerWidgetAlignment).x + 1);
+    final top =
+        0.5 * size.height * ((alignment ?? markerWidgetAlignment).y + 1);
+    final right = size.width - left;
+    final bottom = size.height - top;
 
-    final sw = CustomPoint<double>(
-      pxPoint.x + leftPortion - 100,
-      pxPoint.y - bottomPortion + 100,
-    );
-    final ne = CustomPoint<double>(
-      pxPoint.x - rightPortion + 100,
-      pxPoint.y + topPortion - 100,
+    final bounds = Bounds(
+      Point(pxPoint.x + left, pxPoint.y - bottom),
+      Point(pxPoint.x - right, pxPoint.y + top),
     );
 
-    return map.pixelBounds.containsPartialBounds(Bounds<double>(sw, ne));
+    return mapCamera.pixelBounds.containsPartialBounds(bounds);
   }
 }
 
