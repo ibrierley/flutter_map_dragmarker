@@ -114,7 +114,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final right = marker.size.width - left;
     final bottom = marker.size.height - top;
 
-    final pos = pxPoint.subtract(map.pixelOrigin.toDoublePoint());
+    final pos = Point(pxPoint.x - map.pixelOrigin.toDoublePoint().x, pxPoint.y - map.pixelOrigin.toDoublePoint().y);
     pixelPosition = Point(pos.x - right, pos.y - bottom);
   }
 
@@ -231,8 +231,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
 
     // convert the point to global coordinates
     final localPoint = Point<double>(offset.dx, offset.dy);
-    final localPointCenterDistance =
-        Point<double>((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    final localPointCenterDistance = Point<double>((width / 2) - localPoint.x, (height / 2) - localPoint.y);
     final mapCenter = mapState.project(mapState.center);
     final point = mapCenter - localPointCenterDistance;
     return mapState.unproject(point);
@@ -249,19 +248,15 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final pixelPoint = mapState.project(markerPoint);
     // How much we'll move the map by to compensate
     var scrollMapX = 0.0;
-    if (pixelPoint.x + marker.size.width * marker.scrollNearEdgeRatio >=
-        pixelB.topRight.x) {
+    if (pixelPoint.x + marker.size.width * marker.scrollNearEdgeRatio >= pixelB.topRight.x) {
       scrollMapX = marker.scrollNearEdgeSpeed;
-    } else if (pixelPoint.x - marker.size.width * marker.scrollNearEdgeRatio <=
-        pixelB.bottomLeft.x) {
+    } else if (pixelPoint.x - marker.size.width * marker.scrollNearEdgeRatio <= pixelB.bottomLeft.x) {
       scrollMapX = -marker.scrollNearEdgeSpeed;
     }
     var scrollMapY = 0.0;
-    if (pixelPoint.y - marker.size.height * marker.scrollNearEdgeRatio <=
-        pixelB.topRight.y) {
+    if (pixelPoint.y - marker.size.height * marker.scrollNearEdgeRatio <= pixelB.topRight.y) {
       scrollMapY = -marker.scrollNearEdgeSpeed;
-    } else if (pixelPoint.y + marker.size.height * marker.scrollNearEdgeRatio >=
-        pixelB.bottomLeft.y) {
+    } else if (pixelPoint.y + marker.size.height * marker.scrollNearEdgeRatio >= pixelB.bottomLeft.y) {
       scrollMapY = marker.scrollNearEdgeSpeed;
     }
     return Offset(scrollMapX, scrollMapY);
