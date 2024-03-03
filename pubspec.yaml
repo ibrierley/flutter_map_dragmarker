@@ -1,6 +1,6 @@
 name: flutter_map_dragmarker
 description: Dragmarker class for flutter_map
-version: 6.1.0
+version: 6.0.0
 repository: https://github.com/ibrierley/flutter_map_dragmarker
 
 environment:
@@ -11,12 +11,6 @@ dependencies:
     sdk: flutter
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
-
-dependency_overrides:
-  flutter_map:
-    git:
-      url: https://github.com/fleaflet/flutter_map.git
-      # ref: main (custom branch/commit)
 
 dev_dependencies:
   flutter_lints: ">=1.0.4"
