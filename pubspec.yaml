@@ -1,6 +1,6 @@
 name: flutter_map_dragmarker
 description: Dragmarker class for flutter_map
-version: 6.0.0
+version: 7.0.0
 repository: https://github.com/ibrierley/flutter_map_dragmarker
 
 environment:

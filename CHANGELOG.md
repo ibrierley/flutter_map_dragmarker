@@ -1,3 +1,8 @@
+[7.0.0]
+Update for Flutter_map v7.0.0
+Tweak to timeout to help edge move behave better.
+Tweaks to web/index.html to fix console deprecation errors.
+
 [6.0.0]
 Update for Flutter_map v6.0.0
 
