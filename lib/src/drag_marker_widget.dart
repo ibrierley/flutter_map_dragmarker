@@ -146,7 +146,7 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
       // start the scroll timer if scrollOffset is not zero
       if (scrollOffset != Offset.zero) {
         _mapScrollTimer ??= Timer.periodic(
-          const Duration(milliseconds: 10),
+          const Duration(milliseconds: 20),
           _mapScrollTimerCallback,
         );
       }
