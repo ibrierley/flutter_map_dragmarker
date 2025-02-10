@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -108,7 +106,7 @@ class DragMarker {
     required final MapCamera mapCamera,
     required final Alignment markerWidgetAlignment,
   }) {
-    var pxPoint = mapCamera.project(point);
+    var pxPoint = mapCamera.projectAtZoom(point);
 
     final left =
         0.5 * size.width * ((alignment ?? markerWidgetAlignment).x + 1);
@@ -117,12 +115,9 @@ class DragMarker {
     final right = size.width - left;
     final bottom = size.height - top;
 
-    final bounds = Bounds(
-      Point(pxPoint.x + left, pxPoint.y - bottom),
-      Point(pxPoint.x - right, pxPoint.y + top),
-    );
+    final offset = Offset(pxPoint.dx - right, pxPoint.dy - bottom);
 
-    return mapCamera.pixelBounds.containsPartialBounds(bounds);
+    return mapCamera.pixelBounds.contains(offset);
   }
 }
 

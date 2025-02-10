@@ -1,3 +1,6 @@
+[8.0.0]
+Update for flutter_map v8.0.0
+
 [7.0.0]
 Update for Flutter_map v7.0.0
 Tweak to timeout to help edge move behave better.
