@@ -252,6 +252,8 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     return Offset(scrollMapX, scrollMapY);
   }
 
+  // This is distinct from mapCamera.offsetToCrs as that version will cause
+  // this plugin to break on dragging a marker on a rotated map.
   LatLng _offsetToCrs(Offset offset) {
     // Get the widget's offset
     final renderObject = context.findRenderObject() as RenderBox;
@@ -260,7 +262,8 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     final mapState = widget.mapCamera;
 
     // convert the point to global coordinates
-    final localPointCenterDistance = Offset((width / 2) - offset.dx, (height / 2) - offset.dy);
+    final localPointCenterDistance =
+        Offset((width / 2) - offset.dx, (height / 2) - offset.dy);
     final mapCenter = mapState.projectAtZoom(mapState.center);
     final point = mapCenter - localPointCenterDistance;
     return mapState.unprojectAtZoom(point);
