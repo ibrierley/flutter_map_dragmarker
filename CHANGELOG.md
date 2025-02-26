@@ -1,3 +1,6 @@
+[8.0.1]
+Bug fix for #18 drag incorrect on rotated map
+
 [8.0.0]
 Update for flutter_map v8.0.0
 
