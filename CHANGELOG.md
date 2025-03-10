@@ -1,3 +1,6 @@
+[8.0.2]
+Bug fix for #55 drag on top/left edges disappear
+
 [8.0.1]
 Bug fix for #18 drag incorrect on rotated map
 

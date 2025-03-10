@@ -115,9 +115,18 @@ class DragMarker {
     final right = size.width - left;
     final bottom = size.height - top;
 
-    final offset = Offset(pxPoint.dx - right, pxPoint.dy - bottom);
+    final rect = Rect.fromPoints(
+        Offset(pxPoint.dx - right, pxPoint.dy - bottom),
+        Offset(pxPoint.dx + right, pxPoint.dy + bottom));
 
-    return mapCamera.pixelBounds.contains(offset);
+    return containsPartialBounds(mapCamera.pixelBounds, rect);
+  }
+
+  bool containsPartialBounds(pixelBounds, rect) {
+    return (pixelBounds.left <= rect.right) &&
+        (pixelBounds.right >= rect.left) &&
+        (pixelBounds.top <= rect.bottom) &&
+        (pixelBounds.bottom >= rect.top);
   }
 }
 
