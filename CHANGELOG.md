@@ -1,3 +1,6 @@
+[8.0.3]
+Added option to disable drag on a marker
+
 [8.0.2]
 Bug fix for #55 drag on top/left edges disappear
 
