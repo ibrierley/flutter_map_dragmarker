@@ -70,6 +70,9 @@ class DragMarker {
   /// This option keeps the marker upwards when rotating the map
   final bool rotateMarker;
 
+  /// This option prevents the marker from being dragged
+  final bool disableDrag;
+
   /// Alignment of the marker relative to the normal center at [point]
   ///
   /// For example, [Alignment.topCenter] will mean the entire marker widget is
@@ -99,6 +102,7 @@ class DragMarker {
     this.scrollNearEdgeSpeed = 1.0,
     this.rotateMarker = true,
     this.alignment,
+    this.disableDrag = false,
   });
 
   /// This method checks if the marker is in the current map bounds

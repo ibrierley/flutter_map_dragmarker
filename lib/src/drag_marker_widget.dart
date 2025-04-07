@@ -60,16 +60,16 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     return MobileLayerTransformer(
       child: GestureDetector(
         // drag detectors
-        onVerticalDragStart: marker.useLongPress ? null : _onPanStart,
-        onVerticalDragUpdate: marker.useLongPress ? null : _onPanUpdate,
-        onVerticalDragEnd: marker.useLongPress ? null : _onPanEnd,
-        onHorizontalDragStart: marker.useLongPress ? null : _onPanStart,
-        onHorizontalDragUpdate: marker.useLongPress ? null : _onPanUpdate,
-        onHorizontalDragEnd: marker.useLongPress ? null : _onPanEnd,
+        onVerticalDragStart: (marker.disableDrag || marker.useLongPress) ? null : _onPanStart,
+        onVerticalDragUpdate: (marker.disableDrag || marker.useLongPress) ? null : _onPanUpdate,
+        onVerticalDragEnd: (marker.disableDrag || marker.useLongPress) ? null : _onPanEnd,
+        onHorizontalDragStart: (marker.disableDrag || marker.useLongPress) ? null : _onPanStart,
+        onHorizontalDragUpdate: (marker.disableDrag || marker.useLongPress) ? null : _onPanUpdate,
+        onHorizontalDragEnd: (marker.disableDrag || marker.useLongPress) ? null : _onPanEnd,
         // long press detectors
-        onLongPressStart: marker.useLongPress ? _onLongPanStart : null,
-        onLongPressMoveUpdate: marker.useLongPress ? _onLongPanUpdate : null,
-        onLongPressEnd: marker.useLongPress ? _onLongPanEnd : null,
+        onLongPressStart: (marker.disableDrag || marker.useLongPress) ? _onLongPanStart : null,
+        onLongPressMoveUpdate: (marker.disableDrag || marker.useLongPress) ? _onLongPanUpdate : null,
+        onLongPressEnd: (marker.disableDrag || marker.useLongPress) ? _onLongPanEnd : null,
         // user callbacks
         onTap: () => marker.onTap?.call(markerPoint),
         onLongPress: () => marker.onLongPress?.call(markerPoint),

@@ -30,6 +30,20 @@ class TestAppState extends State<TestApp> {
           color: Colors.blueGrey,
         ),
       ),
+      // minimal not draggable marker example
+      DragMarker(
+        key: GlobalKey<DragMarkerWidgetState>(),
+        point: const LatLng(45.735, -122.975),
+        size: const Size.square(50),
+        offset: const Offset(0, -20),
+        disableDrag: true,
+        builder: (_, __, ___) => const Icon(
+          Icons.location_on_outlined,
+          size: 50,
+          color: Colors.blueGrey,
+        ),
+      ),
+
       // marker with drag feedback, map scrolls when near edge
       DragMarker(
         key: GlobalKey<DragMarkerWidgetState>(),
