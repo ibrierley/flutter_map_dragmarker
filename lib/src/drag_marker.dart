@@ -71,7 +71,7 @@ class DragMarker {
   final bool rotateMarker;
 
   /// This option prevents the marker from being dragged
-  final bool disableDrag;
+  bool disableDrag;
 
   /// Alignment of the marker relative to the normal center at [point]
   ///

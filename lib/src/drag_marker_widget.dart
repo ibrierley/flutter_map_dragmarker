@@ -60,16 +60,16 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     return MobileLayerTransformer(
       child: GestureDetector(
         // drag detectors
-        onVerticalDragStart: (marker.disableDrag || marker.useLongPress) ? null : _onPanStart,
-        onVerticalDragUpdate: (marker.disableDrag || marker.useLongPress) ? null : _onPanUpdate,
-        onVerticalDragEnd: (marker.disableDrag || marker.useLongPress) ? null : _onPanEnd,
-        onHorizontalDragStart: (marker.disableDrag || marker.useLongPress) ? null : _onPanStart,
-        onHorizontalDragUpdate: (marker.disableDrag || marker.useLongPress) ? null : _onPanUpdate,
-        onHorizontalDragEnd: (marker.disableDrag || marker.useLongPress) ? null : _onPanEnd,
+        onVerticalDragStart: (marker.useLongPress) ? null : _onPanStart,
+        onVerticalDragUpdate: (marker.useLongPress) ? null : _onPanUpdate,
+        onVerticalDragEnd: (marker.useLongPress) ? null : _onPanEnd,
+        onHorizontalDragStart: (marker.useLongPress) ? null : _onPanStart,
+        onHorizontalDragUpdate: (marker.useLongPress) ? null : _onPanUpdate,
+        onHorizontalDragEnd: (marker.useLongPress) ? null : _onPanEnd,
         // long press detectors
-        onLongPressStart: (marker.disableDrag || marker.useLongPress) ? _onLongPanStart : null,
-        onLongPressMoveUpdate: (marker.disableDrag || marker.useLongPress) ? _onLongPanUpdate : null,
-        onLongPressEnd: (marker.disableDrag || marker.useLongPress) ? _onLongPanEnd : null,
+        onLongPressStart: (marker.useLongPress) ? _onLongPanStart : null,
+        onLongPressMoveUpdate: (marker.useLongPress) ? _onLongPanUpdate : null,
+        onLongPressEnd: (marker.useLongPress) ? _onLongPanEnd : null,
         // user callbacks
         onTap: () => marker.onTap?.call(markerPoint),
         onLongPress: () => marker.onLongPress?.call(markerPoint),
@@ -118,23 +118,28 @@ class DragMarkerWidgetState extends State<DragMarkerWidget> {
     offsetPosition = Offset(offset.dx - right, offset.dy - bottom);
   }
 
-  void _start(Offset localPosition) {
+  bool _start(Offset localPosition) {
+    if (widget.marker.disableDrag) { return false; }
     _isDragging = true;
     _dragPosStart = _offsetToCrs(localPosition);
     _markerPointStart = LatLng(markerPoint.latitude, markerPoint.longitude);
+    return true;
   }
 
   void _onPanStart(DragStartDetails details) {
-    _start(details.localPosition);
-    widget.marker.onDragStart?.call(details, markerPoint);
+    if (_start(details.localPosition)) {
+      widget.marker.onDragStart?.call(details, markerPoint);
+    }
   }
 
   void _onLongPanStart(LongPressStartDetails details) {
-    _start(details.localPosition);
-    widget.marker.onLongDragStart?.call(details, markerPoint);
+    if (_start(details.localPosition)) {
+      widget.marker.onLongDragStart?.call(details, markerPoint);
+    }
   }
 
   void _pan(Offset localPosition) {
+    if (!_isDragging) { return; }
     final dragPos = _offsetToCrs(localPosition);
 
     final deltaLat = dragPos.latitude - _dragPosStart.latitude;
